@@ -82,7 +82,12 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
-
+:root {
+  --brand-emerald: #059669;
+  --brand-emerald-dark: #047857;
+  --brand-amber: #f59e0b;
+  --brand-ink: #0f172a;
+}
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
