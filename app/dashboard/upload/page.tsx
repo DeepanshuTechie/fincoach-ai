@@ -62,48 +62,96 @@ export default function UploadPage() {
 
         const rows = results.data;
 
-        // Step 1: Ask AI to categorize all transactions
-        setStatus("Categorizing with AI...");
-
-        const categorizeRes = await fetch("/api/categorize", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transactions: rows.map((r) => ({
-              description: r.description,
-              amount: parseFloat(r.amount),
-            })),
-          }),
-        });
-
-        const categorizeData = await categorizeRes.json();
-
-        if (categorizeData.error) {
-          setError(categorizeData.error);
-          setLoading(false);
-          return;
-        }
-
-        const categoryNames: string[] = categorizeData.categories;
-        console.log("AI returned categories:", categoryNames);
-
-        // Step 2: Get category IDs from Supabase (name -> id map)
-        // const { data: categoriesData } = await supabase
-        //   .from("categories")
-        //   .select("id, name");
-
-        const { data: categoriesData, error: categoriesError } = await supabase
-  .from("categories")
-  .select("id, name");
-
-console.log("Categories fetched:", categoriesData);
-console.log("Categories error:", categoriesError);
+        // Step 1: Get category name <-> id maps
+        const { data: categoriesData } = await supabase
+          .from("categories")
+          .select("id, name");
 
         const nameToId = new Map(
           (categoriesData || []).map((c) => [c.name, c.id])
         );
 
-        // Step 3: Build final rows with category_id attached
+        // Step 2: Check merchant memory for descriptions we already know
+        setStatus("Checking known merchants...");
+
+        const { data: memoryData } = await supabase
+          .from("merchant_memory")
+          .select("description, category_id")
+          .eq("user_id", user.id);
+
+        const memoryMap = new Map(
+          (memoryData || []).map((m) => [m.description, m.category_id])
+        );
+
+        // Step 3: Split rows into "known" (from memory) and "unknown" (need AI)
+        const knownCategoryIds: (string | null)[] = [];
+        const unknownRows: CsvRow[] = [];
+        const unknownIndexes: number[] = [];
+
+        rows.forEach((row, i) => {
+          if (memoryMap.has(row.description)) {
+            knownCategoryIds[i] = memoryMap.get(row.description) || null;
+          } else {
+            unknownRows.push(row);
+            unknownIndexes.push(i);
+          }
+        });
+
+        // Step 4: Ask AI only for the unknown descriptions
+        let aiCategoryNames: string[] = [];
+
+        if (unknownRows.length > 0) {
+          setStatus(
+            `Categorizing ${unknownRows.length} new merchant(s) with AI...`
+          );
+
+          const categorizeRes = await fetch("/api/categorize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transactions: unknownRows.map((r) => ({
+                description: r.description,
+                amount: parseFloat(r.amount),
+              })),
+            }),
+          });
+
+          const categorizeData = await categorizeRes.json();
+
+          if (categorizeData.error) {
+            setError(categorizeData.error);
+            setLoading(false);
+            return;
+          }
+
+          aiCategoryNames = categorizeData.categories;
+        }
+
+        // Step 5: Merge known + AI results back into original row order
+        const finalCategoryIds: (string | null)[] = [...knownCategoryIds];
+        unknownIndexes.forEach((originalIndex, i) => {
+          const categoryName = aiCategoryNames[i];
+          finalCategoryIds[originalIndex] = nameToId.get(categoryName) || null;
+        });
+
+        // Step 6: Save newly AI-categorized merchants into memory for next time
+        if (unknownRows.length > 0) {
+          const newMemoryEntries = unknownRows
+            .map((row, i) => ({
+              user_id: user.id,
+              description: row.description,
+              category_id: nameToId.get(aiCategoryNames[i]) || null,
+            }))
+            .filter((entry) => entry.category_id !== null);
+
+          if (newMemoryEntries.length > 0) {
+            await supabase.from("merchant_memory").upsert(newMemoryEntries, {
+              onConflict: "user_id,description",
+            });
+          }
+        }
+
+        // Step 7: Save transactions
         setStatus("Saving transactions...");
 
         const finalRows = rows.map((row, i) => ({
@@ -111,7 +159,7 @@ console.log("Categories error:", categoriesError);
           description: row.description,
           amount: parseFloat(row.amount),
           transaction_date: row.date,
-          category_id: nameToId.get(categoryNames[i]) || null,
+          category_id: finalCategoryIds[i],
         }));
 
         const { error: insertError } = await supabase
