@@ -13,6 +13,7 @@ type CsvRow = {
   description: string;
   amount: string;
   date: string;
+  time?: string;
 };
 
 export default function UploadPage() {
@@ -159,6 +160,7 @@ export default function UploadPage() {
           description: row.description,
           amount: parseFloat(row.amount),
           transaction_date: row.date,
+          transaction_time: row.time || null,
           category_id: finalCategoryIds[i],
         }));
 

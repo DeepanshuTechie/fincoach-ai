@@ -48,3 +48,33 @@ Respond ONLY with a JSON array of category strings, in the same order as the tra
     return transactions.map(() => "Other");
   }
 }
+
+export async function categorizeWithHint(
+  description: string,
+  amount: number,
+  hint: string
+): Promise<string> {
+  const model = genAI.getGenerativeModel({
+    model: "gemini-3.6-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
+  });
+
+  const prompt = `You are a financial transaction categorizer. Assign this transaction to exactly one of these categories: ${CATEGORIES.join(", ")}.
+
+Transaction: "${description}" - amount: ${amount}
+The user provided this extra context about what this payment was for: "${hint}"
+
+Respond ONLY with a JSON array containing exactly one category string. Example: ["Food & Dining"]`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+
+  try {
+    const categories = JSON.parse(text) as string[];
+    return categories[0] || "Other";
+  } catch {
+    return "Other";
+  }
+}
