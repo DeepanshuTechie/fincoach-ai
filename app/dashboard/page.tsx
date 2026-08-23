@@ -34,7 +34,10 @@ export default async function DashboardPage() {
             <p className="text-sm text-slate-500">Welcome back</p>
             <h1 className="text-2xl font-bold text-slate-900">{user.email}</h1>
           </div>
-          <a href="/dashboard/upload" className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Upload Statement</a>
+          <div className="flex gap-2">
+  <a href="/dashboard/chat" className="rounded-md border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50">Chat with AI</a>
+  <a href="/dashboard/upload" className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Upload Statement</a>
+</div>
         </div>
 
         <div className="mb-6 rounded-lg border border-emerald-100 bg-emerald-50 p-5">
