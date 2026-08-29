@@ -68,6 +68,7 @@ export default async function DashboardPage() {
           </div>
           <div className="flex gap-2">
             <a href="/dashboard/budgets" className="rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">Budgets</a>
+            <a href="/dashboard/subscriptions" className="rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">Subscriptions</a>
             <a href="/dashboard/chat" className="rounded-md border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50">Chat with AI</a>
             <a href="/dashboard/upload" className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Upload Statement</a>
           </div>
