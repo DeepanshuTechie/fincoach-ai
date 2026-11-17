@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
 type Txn = {
   description: string;
   amount: number;
-  categories: { name: string } | null;
+  categories: { name: string } | { name: string }[] | null;
 };
 
 export async function generateMonthlyInsight(
@@ -15,13 +15,19 @@ export async function generateMonthlyInsight(
     return "Upload a bank statement to get your first AI-powered spending insight.";
   }
 
-  const expenses = transactions.filter((t) => t.categories?.name !== "Income");
+  const getCatName = (t: Txn) => {
+    if (!t.categories) return "Other";
+    if (Array.isArray(t.categories)) return t.categories[0]?.name || "Other";
+    return t.categories.name || "Other";
+  };
+
+  const expenses = transactions.filter((t) => getCatName(t) !== "Income");
   const totalSpent = expenses.reduce((sum, t) => sum + Number(t.amount), 0);
 
   // Category-wise totals (plain math, no AI needed here)
   const categoryTotals = new Map<string, number>();
   expenses.forEach((t) => {
-    const name = t.categories?.name || "Other";
+    const name = getCatName(t);
     categoryTotals.set(name, (categoryTotals.get(name) || 0) + Number(t.amount));
   });
   const sortedCategories = Array.from(categoryTotals.entries()).sort(
@@ -58,15 +64,24 @@ export async function generateMonthlyInsight(
 - Total transactions: ${expenses.length}
 `;
 
-  const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const prompt = `You are a friendly personal finance coach. Based on these facts about a user's spending, write a short, warm 2-3 sentence summary. Be specific with numbers. If there's a recurring merchant or a dominant category, mention it and give one actionable tip.
+    const prompt = `You are a friendly personal finance coach. Based on these facts about a user's spending, write a short, warm 2-3 sentence summary. Be specific with numbers. If there's a recurring merchant or a dominant category, mention it and give one actionable tip.
 
 Facts:
 ${facts}
 
 Write only the summary paragraph — no headers, no bullet points, no markdown.`;
 
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (err) {
+    console.warn("Gemini insight unavailable, generating analytical synthesis:", err);
+    return `In this billing cycle, you recorded ${expenses.length} outflow transactions totaling ₹${totalSpent}. Your largest allocation was ${topCategory?.[0] || "discretionary spending"} at ₹${topCategory?.[1] || 0}. ${
+      recurring.length > 0
+        ? `We detected ${recurring.length} recurring merchants including ${recurring[0][0]}.`
+        : "No anomalous recurring merchant charges were detected."
+    }`;
+  }
 }

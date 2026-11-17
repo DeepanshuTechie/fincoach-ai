@@ -1,365 +1,521 @@
 "use client";
 
-import { useRef } from "react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  TrendingUp,
+  ArrowRight,
+  BrainCircuit,
+  MessageSquare,
+  FileSpreadsheet,
+  CheckCircle2,
+  Lock,
+  Layers,
+  Sparkles,
+  AlertTriangle,
+  ArrowUpRight,
+} from "lucide-react";
 
-export default function Home() {
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
+const ROTATING_PHRASES = [
+  "grounded in real data.",
+  "automated with AI precision.",
+  "free from hidden leaks.",
+  "tailored to your net worth.",
+  "queryable in plain English.",
+];
+
+function TypewriterHeadline() {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [displayText, setDisplayText] = useState(ROTATING_PHRASES[0]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentPhrase = ROTATING_PHRASES[phraseIndex];
+    let timeout: NodeJS.Timeout;
+
+    if (!isDeleting) {
+      if (displayText.length < currentPhrase.length) {
+        timeout = setTimeout(() => {
+          setDisplayText(currentPhrase.slice(0, displayText.length + 1));
+        }, 75);
+      } else {
+        timeout = setTimeout(() => {
+          setIsDeleting(true);
+        }, 2400);
+      }
+    } else {
+      if (displayText.length > 0) {
+        timeout = setTimeout(() => {
+          setDisplayText(currentPhrase.slice(0, displayText.length - 1));
+        }, 36);
+      } else {
+        timeout = setTimeout(() => {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % ROTATING_PHRASES.length);
+        }, 420);
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, phraseIndex]);
 
   return (
-    <main className="relative flex flex-col items-center overflow-hidden bg-[var(--ink)]">
-      {/* HERO */}
-      <section
-        ref={heroRef}
-        className="relative flex min-h-screen w-full flex-col items-center justify-center px-4 text-center"
-      >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[var(--gold)]/10 blur-3xl"
-          />
-          <motion.div
-            animate={{ x: [0, -30, 0], y: [0, 40, 0] }}
-            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-[var(--jade)]/10 blur-3xl"
-          />
-          {[
-            { top: "15%", left: "12%", size: 5, duration: 7, color: "#c9a24b" },
-            { top: "70%", left: "20%", size: 4, duration: 9, color: "#5fa88f" },
-            { top: "25%", left: "80%", size: 5, duration: 8, color: "#c9a24b" },
-            { top: "60%", left: "85%", size: 4, duration: 10, color: "#5fa88f" },
-            { top: "45%", left: "50%", size: 4, duration: 6.5, color: "#c9a24b" },
-            { top: "85%", left: "55%", size: 5, duration: 9.5, color: "#5fa88f" },
-            { top: "10%", left: "45%", size: 4, duration: 8.5, color: "#c9a24b" },
-            { top: "35%", left: "8%", size: 4, duration: 7.5, color: "#5fa88f" },
-          ].map((dot, i) => (
-            <motion.div
-              key={i}
-              animate={{ y: [0, -20, 0], opacity: [0.3, 1, 0.3] }}
-              transition={{
-                duration: dot.duration,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.5,
-              }}
-              className="absolute rounded-full"
-              style={{
-                top: dot.top,
-                left: dot.left,
-                width: dot.size,
-                height: dot.size,
-                backgroundColor: dot.color,
-                boxShadow: `0 0 8px 2px ${dot.color}`,
-              }}
-            />
-          ))}
+    <span className="relative inline-flex items-baseline min-h-[1.18em] text-[#A4873E] dark:text-[#dfb962]">
+      <span>{displayText}</span>
+      <span
+        aria-hidden="true"
+        className="inline-block w-[3px] sm:w-[4px] md:w-[5px] h-[0.84em] ml-1.5 translate-y-[1px] bg-[#A4873E] dark:bg-[#dfb962] rounded-full animate-cursor"
+      />
+    </span>
+  );
+}
+
+export default function Home() {
+  const [mockupTab, setMockupTab] = useState<"overview" | "alerts" | "advisor">("overview");
+
+  return (
+    <main className="relative min-h-screen flex flex-col bg-[#f8f9fd] text-[#333333] transition-colors duration-200 dark:bg-[#080e0a] dark:text-[#f5f7fa] overflow-x-hidden">
+      {/* Background Architectural Grid Pattern with Lavender Frost tone */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#d6d9f2_1px,transparent_1px)] [background-size:24px_24px] opacity-60 dark:bg-[radial-gradient(rgba(223,185,98,0.08)_1px,transparent_1px)]" />
+
+      {/* Hero Ambient Radial Glow (Gold + Forest Pine fusion) */}
+      <div className="pointer-events-none absolute top-10 left-1/2 -translate-x-1/2 h-[380px] w-[500px] sm:w-[820px] -z-10 rounded-full bg-gradient-to-r from-[#175624]/10 via-[#A4873E]/15 to-[#E5E6F9]/30 dark:from-[#34d399]/10 dark:via-[#dfb962]/15 dark:to-transparent blur-3xl animate-pulse-ring" />
+
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-50 w-full border-b border-[#E5E6F9] bg-white/85 backdrop-blur-md transition-colors dark:border-white/[0.08] dark:bg-[#080e0a]/85">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <Link href="/" className="group flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#175624] text-[#A4873E] shadow-xs transition-transform duration-300 group-hover:scale-105 dark:bg-[#dfb962] dark:text-[#080e0a]">
+              <TrendingUp className="h-4 w-4 stroke-[2.5]" />
+            </div>
+            <span className="font-bold text-base tracking-tight text-[#175624] dark:text-white">
+              FinCoach <span className="text-[#A4873E] dark:text-[#dfb962]">AI</span>
+            </span>
+          </Link>
+
+          <nav className="hidden items-center gap-6 text-xs font-semibold text-[#333333] dark:text-[#9ca3af] md:flex">
+            <button
+              onClick={() =>
+                document.getElementById("workflow")?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="transition-colors hover:text-[#175624] dark:hover:text-white"
+            >
+              Workflow
+            </button>
+            <button
+              onClick={() =>
+                document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="transition-colors hover:text-[#175624] dark:hover:text-white"
+            >
+              Capabilities
+            </button>
+            <button
+              onClick={() =>
+                document.getElementById("security")?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="transition-colors hover:text-[#175624] dark:hover:text-white"
+            >
+              Security
+            </button>
+          </nav>
+
+          <div className="flex items-center gap-2.5">
+            <ThemeToggle />
+            <Link
+              href="/login"
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#333333] transition-colors hover:bg-[#E5E6F9]/60 hover:text-[#175624] dark:text-[#E5E6F9] dark:hover:bg-white/[0.06] dark:hover:text-white"
+            >
+              Sign In
+            </Link>
+            <Link href="/signup">
+              <Button
+                size="sm"
+                className="group relative overflow-hidden bg-[#175624] text-[#E5E6F9] font-semibold transition-all duration-200 hover:bg-[#12441d] hover:shadow-xs dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* HERO SECTION */}
+      <section className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-4 pt-16 pb-20 text-center sm:pt-24 sm:pb-28">
+        {/* Subtle Release Badge */}
+        <div
+          className="animate-fade-in-up inline-flex items-center gap-2 rounded-full border border-[#E5E6F9] bg-white px-3.5 py-1 text-xs font-medium text-[#175624] shadow-2xs transition-all duration-200 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-[#dfb962]/20 dark:bg-[#111a13] dark:text-[#dfb962]"
+          style={{ animationDelay: "100ms" }}
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A4873E] opacity-75 dark:bg-[#dfb962]" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#A4873E] dark:bg-[#dfb962]" />
+          </span>
+          <span>FinCoach 2.0 with Merchant Memory</span>
+          <ArrowRight className="h-3 w-3 text-[#A4873E] dark:text-[#dfb962]" />
         </div>
 
-        <motion.div
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="relative flex flex-col items-center"
+        {/* Main Headline with Live Typewriter Letters Animation */}
+        <h1
+          className="animate-fade-in-up mt-8 text-4xl font-extrabold tracking-tight text-[#175624] sm:text-6xl md:text-7xl dark:text-[#f5f7fa] leading-[1.08]"
+          style={{ animationDelay: "200ms" }}
         >
-          <motion.span
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="rounded-full border border-[var(--gold)]/30 bg-[var(--gold)]/10 px-4 py-1 text-sm font-medium text-[var(--gold)]"
-          >
-            FinCoach AI
-          </motion.span>
+          Personal finance,
+          <br />
+          <TypewriterHeadline />
+        </h1>
 
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-5 h-px w-12 bg-[var(--gold)]/40"
-          />
+        {/* Subtitle */}
+        <p
+          className="animate-fade-in-up mt-6 max-w-2xl text-base text-[#333333]/85 sm:text-lg dark:text-[#9ca3af] leading-relaxed"
+          style={{ animationDelay: "300ms" }}
+        >
+          Drop in your bank statement. FinCoach categorizes transactions,
+          surfaces budget variance alerts, detects recurring merchant charges, and lets you query your own finances in plain English.
+        </p>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mt-6 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight text-[var(--ivory)] sm:text-6xl"
-          >
-            Understand your money.
-            <br />
-            <span className="text-[var(--gold)]">Ask it anything.</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-6 max-w-md text-[var(--slate)]"
-          >
-            Upload your bank statement. Get instant categorization, spending
-            insights, and an AI that answers questions about your own
-            finances.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-8 flex gap-3"
-          >
+        {/* CTA Buttons */}
+        <div
+          className="animate-fade-in-up mt-8 flex flex-wrap items-center justify-center gap-3.5"
+          style={{ animationDelay: "400ms" }}
+        >
+          <Link href="/signup">
             <Button
               size="lg"
-              className="bg-[var(--gold)] text-[var(--ink)] shadow-lg shadow-[var(--gold)]/20 transition-transform hover:scale-105 hover:bg-[var(--gold)]/90"
+              className="group relative overflow-hidden h-11 px-6 text-sm font-semibold bg-[#175624] text-[#E5E6F9] shadow-sm transition-all duration-300 hover:bg-[#12441d] hover:shadow-md hover:shadow-[#175624]/20 hover:-translate-y-0.5 active:translate-y-0 dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e] dark:shadow-[#dfb962]/20"
             >
-              Get Started
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-shimmer" />
+              <span className="relative z-10 flex items-center">
+                Start Free Today
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </span>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() =>
-                document
-                  .getElementById("how-it-works")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="border-[var(--hairline)] bg-transparent text-[var(--ivory)] transition-transform hover:scale-105 hover:bg-[var(--surface)]"
-            >
-              Learn More
-            </Button>
-          </motion.div>
-        </motion.div>
+          </Link>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() =>
+              document.getElementById("workflow")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="h-11 px-6 text-sm font-medium border-[#E5E6F9] bg-white text-[#333333] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#E5E6F9]/50 hover:text-[#175624] dark:border-white/10 dark:bg-white/[0.04] dark:text-[#f5f7fa] dark:hover:bg-white/[0.08]"
+          >
+            See How It Works
+          </Button>
+        </div>
+
+        {/* Proof Checkmarks */}
+        <div
+          className="animate-fade-in-up mt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-[#333333] dark:text-[#9ca3af] font-medium"
+          style={{ animationDelay: "500ms" }}
+        >
+          <div className="flex items-center gap-1.5 transition-transform duration-200 hover:scale-105">
+            <CheckCircle2 className="h-4 w-4 text-[#175624] dark:text-[#34d399]" />
+            <span>Zero manual spreadsheet upkeep</span>
+          </div>
+          <div className="flex items-center gap-1.5 transition-transform duration-200 hover:scale-105">
+            <CheckCircle2 className="h-4 w-4 text-[#A4873E] dark:text-[#dfb962]" />
+            <span>Adaptive merchant memory</span>
+          </div>
+          <div className="flex items-center gap-1.5 transition-transform duration-200 hover:scale-105">
+            <CheckCircle2 className="h-4 w-4 text-[#175624] dark:text-[#34d399]" />
+            <span>PostgreSQL Row-Level Security</span>
+          </div>
+        </div>
+
+        {/* Interactive & Animated Product Preview Mockup */}
+        <div
+          className="animate-fade-in-up mt-14 w-full rounded-2xl border border-[#E5E6F9] bg-white p-4 sm:p-6 shadow-xl text-left transition-all duration-300 hover:shadow-2xl dark:border-white/[0.08] dark:bg-[#111a13]"
+          style={{ animationDelay: "600ms" }}
+        >
+          {/* Mockup Header bar with Interactive Tab Pills */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E6F9] pb-3 mb-5 dark:border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+              <div className="h-2.5 w-2.5 rounded-full bg-[#A4873E] dark:bg-[#dfb962]" />
+              <div className="h-2.5 w-2.5 rounded-full bg-[#175624] dark:bg-[#34d399]" />
+              <span className="ml-2 font-mono text-[11px] text-[#A4873E] dark:text-[#9ca3af]">
+                fincoach.ai/dashboard
+              </span>
+            </div>
+
+            {/* Interactive Preview Tabs */}
+            <div className="flex items-center gap-1 rounded-lg border border-[#E5E6F9] bg-[#E5E6F9]/40 p-0.5 text-[11px] font-medium text-[#333333] dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-slate-400">
+              <button
+                type="button"
+                onClick={() => setMockupTab("overview")}
+                className={`rounded-md px-2.5 py-1 transition-all ${
+                  mockupTab === "overview"
+                    ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
+                    : "hover:text-[#175624] dark:hover:text-white"
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                type="button"
+                onClick={() => setMockupTab("alerts")}
+                className={`rounded-md px-2.5 py-1 transition-all ${
+                  mockupTab === "alerts"
+                    ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
+                    : "hover:text-[#175624] dark:hover:text-white"
+                }`}
+              >
+                Variance Alerts
+              </button>
+              <button
+                type="button"
+                onClick={() => setMockupTab("advisor")}
+                className={`rounded-md px-2.5 py-1 transition-all ${
+                  mockupTab === "advisor"
+                    ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
+                    : "hover:text-[#175624] dark:hover:text-white"
+                }`}
+              >
+                AI Synthesis
+              </button>
+            </div>
+
+            {/* Radar Pulse Badge */}
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E5E6F9] border border-[#d0d3f2] px-2.5 py-0.5 text-[11px] font-bold text-[#175624] dark:bg-[#17241b] dark:border-[#34d399]/30 dark:text-[#34d399]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#175624] opacity-75 dark:bg-[#34d399]" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#175624] dark:bg-[#34d399]" />
+              </span>
+              Active Sync
+            </span>
+          </div>
+
+          {/* Dynamic Content based on Mockup Tab */}
+          {mockupTab === "overview" && (
+            <div className="space-y-4 transition-all duration-300">
+              {/* Metric cards grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
+                  <span className="text-xs text-[#333333]/70 dark:text-slate-400">Monthly Spending</span>
+                  <p className="mt-1 text-2xl font-bold text-[#175624] dark:text-white font-tabular">
+                    ₹32,450
+                  </p>
+                  <span className="text-[11px] font-semibold text-[#175624] dark:text-[#34d399]">
+                    ↓ 14% vs last cycle
+                  </span>
+                </div>
+                <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
+                  <span className="text-xs text-[#333333]/70 dark:text-slate-400">Total Inflow</span>
+                  <p className="mt-1 text-2xl font-bold text-[#A4873E] dark:text-[#dfb962] font-tabular">
+                    ₹85,000
+                  </p>
+                  <span className="text-[11px] text-[#666666] dark:text-slate-400">Direct deposit</span>
+                </div>
+                <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
+                  <span className="text-xs text-[#333333]/70 dark:text-slate-400">Primary Expense</span>
+                  <p className="mt-1 text-2xl font-bold text-[#333333] dark:text-white font-tabular">
+                    Food & Dining
+                  </p>
+                  <span className="text-[11px] text-[#A4873E] dark:text-[#dfb962]">₹12,800 allocated</span>
+                </div>
+              </div>
+
+              {/* Sample Live Transaction Row */}
+              <div className="rounded-xl border border-[#E5E6F9] bg-white p-3 text-xs dark:border-white/[0.04] dark:bg-white/[0.02]">
+                <div className="flex items-center justify-between font-mono text-[11px] text-[#A4873E] dark:text-slate-400 mb-2">
+                  <span>RECENT SETTLED TRANSACTIONS</span>
+                  <span>MERCHANT MEMORY CONFIRMED</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-[#f8f9fd] border border-[#E5E6F9] transition-colors hover:border-[#A4873E]/50 dark:bg-white/[0.03] dark:border-white/[0.04]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-6 w-6 rounded-md bg-[#175624] text-[#A4873E] flex items-center justify-center font-bold text-[10px] dark:bg-[#dfb962] dark:text-[#080e0a]">
+                        SW
+                      </div>
+                      <div>
+                        <span className="font-semibold text-[#333333] dark:text-slate-100">Swiggy Delivery</span>
+                        <span className="ml-2 text-[10px] text-[#A4873E] dark:text-slate-400">Auto-tagged Food & Dining</span>
+                      </div>
+                    </div>
+                    <span className="font-tabular font-bold text-rose-600 dark:text-rose-400">-₹450.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {mockupTab === "alerts" && (
+            <div className="space-y-3 transition-all duration-300">
+              <div className="rounded-xl border border-[#A4873E]/40 bg-[#f5eedf]/60 p-4 text-xs dark:border-[#dfb962]/30 dark:bg-[#dfb962]/[0.08]">
+                <div className="flex items-center gap-2 mb-1.5 font-bold text-[#175624] dark:text-[#dfb962]">
+                  <AlertTriangle className="h-4 w-4 text-[#A4873E] dark:text-[#dfb962]" />
+                  <span>Velocity Alert: Food & Dining at 85% of Monthly Limit</span>
+                </div>
+                <p className="text-[#333333] leading-relaxed dark:text-slate-300">
+                  You have spent ₹12,800 of your ₹15,000 limit with 12 days remaining in this billing cycle. Current daily run-rate is projected to exceed allowance by ₹2,400.
+                </p>
+              </div>
+              <div className="rounded-xl border border-[#175624]/20 bg-[#e8f5ea] p-4 text-xs dark:border-[#34d399]/30 dark:bg-[#34d399]/[0.08]">
+                <div className="flex items-center gap-2 mb-1.5 font-bold text-[#175624] dark:text-[#34d399]">
+                  <CheckCircle2 className="h-4 w-4 text-[#175624] dark:text-[#34d399]" />
+                  <span>Subscription Audit: 0 Unrecognized Recurring Charges</span>
+                </div>
+                <p className="text-[#333333] leading-relaxed dark:text-slate-300">
+                  Verified 3 recurring services (AWS, Netflix, Spotify). Monthly subscription run-rate remains constant at ₹1,849.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {mockupTab === "advisor" && (
+            <div className="rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 text-xs dark:border-white/[0.06] dark:bg-white/[0.02] transition-all duration-300">
+              <div className="flex items-center gap-2 mb-2 font-bold text-[#175624] dark:text-[#dfb962]">
+                <Sparkles className="h-3.5 w-3.5 text-[#A4873E] dark:text-[#dfb962]" />
+                <span>Executive Financial Synthesis</span>
+              </div>
+              <p className="text-[#333333] leading-relaxed dark:text-slate-300">
+                Net cash flow remained positive with a surplus of ₹52,550. Discretionary spending was reduced by 14% compared to the prior period. Rebalancing ₹15,000 into short-term liquid reserves will fulfill your emergency fund target 18 days ahead of schedule.
+              </p>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section
-        id="how-it-works"
-        className="relative w-full border-t border-[var(--hairline)] bg-[#141b34]"
-      >
-        <div className="mx-auto max-w-5xl px-4 py-24">
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            whileInView={{ opacity: 1, scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mx-auto mb-4 h-px w-10 bg-[#5b7fa6]/50"
-          />
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="mb-2 text-center text-xs uppercase tracking-widest text-[#5b7fa6]"
-          >
-            How it works
-          </motion.p>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-8 text-center font-[family-name:var(--font-display)] text-3xl font-semibold text-[var(--ivory)] sm:text-4xl"
-          >
-            From statement to clarity, in three steps
-          </motion.h2>
+      {/* WORKFLOW SECTION */}
+      <section id="workflow" className="w-full border-t border-[#E5E6F9] bg-white py-20 px-4 transition-colors dark:border-white/[0.06] dark:bg-[#0c120e]">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#A4873E] dark:text-[#dfb962]">
+              Pipeline
+            </span>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-[#175624] dark:text-white">
+              From raw statement to structured wealth insight
+            </h2>
+          </div>
 
-          <motion.div
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.1, ease: "easeInOut" }}
-            style={{ transformOrigin: "left" }}
-            className="mb-14 h-px w-full bg-gradient-to-r from-[#c9a24b] via-[#5fa88f] to-[#5b7fa6]"
-          />
-
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
             {[
               {
                 step: "01",
-                title: "Upload your statement",
-                desc: "Drop in a CSV of your bank statement — no manual entry, no typing every expense by hand.",
-                color: "#c9a24b",
+                title: "Import Any Format",
+                desc: "Drop in standard PDF, Excel (.xlsx/.xls), or CSV exports from any retail or commercial bank with automatic conversion.",
+                icon: FileSpreadsheet,
               },
               {
                 step: "02",
-                title: "AI reads every line",
-                desc: "Each transaction is automatically sorted into a category, and remembered for next time.",
-                color: "#5fa88f",
+                title: "Adaptive Classification",
+                desc: "Transactions are categorized via Gemini AI and our intelligent heuristic engine with permanent Merchant Memory.",
+                icon: BrainCircuit,
               },
               {
                 step: "03",
-                title: "Ask, and understand",
-                desc: "See your spending laid out clearly, or just ask FinCoach a question in plain English.",
-                color: "#5b7fa6",
+                title: "Query & Synthesize",
+                desc: "Inspect spending velocity, set budget thresholds, and ask plain-English questions grounded in your transaction log.",
+                icon: MessageSquare,
               },
-            ].map((item, i) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.15 }}
-              >
-                <div className="mb-3 flex items-center gap-2">
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{
-                      duration: 0.4,
-                      delay: i * 0.15 + 0.3,
-                      type: "spring",
-                      stiffness: 300,
-                    }}
-                    className="h-1.5 w-1.5 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span
-                    className="font-[family-name:var(--font-mono)] text-sm"
-                    style={{ color: item.color }}
-                  >
-                    {item.step}
-                  </span>
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.step}
+                  className="group rounded-2xl border border-[#E5E6F9] bg-[#f8f9fd] p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#A4873E]/50 hover:shadow-md dark:border-white/[0.06] dark:bg-[#111a13] dark:hover:border-[#dfb962]/40"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E5E6F9] text-[#175624] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#175624] group-hover:text-[#E5E6F9] dark:bg-white/[0.08] dark:text-[#dfb962] dark:group-hover:bg-[#dfb962] dark:group-hover:text-[#080e0a]">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="font-mono text-xs font-bold text-[#A4873E] dark:text-[#dfb962] transition-colors">
+                      {item.step}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-[#175624] dark:text-white mb-1.5">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-[#333333]/85 leading-relaxed dark:text-slate-400">
+                    {item.desc}
+                  </p>
                 </div>
-                <h3 className="mb-2 font-[family-name:var(--font-display)] text-xl font-semibold text-[var(--ivory)]">
-                  {item.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-[var(--slate)]">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="relative w-full max-w-5xl border-t border-[var(--hairline)] px-4 py-24">
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto mb-4 h-px w-10 bg-[var(--gold)]/40"
-        />
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mb-2 text-center text-xs uppercase tracking-widest text-[var(--slate)]"
-        >
-          What you get
-        </motion.p>
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-14 text-center font-[family-name:var(--font-display)] text-3xl font-semibold text-[var(--ivory)] sm:text-4xl"
-        >
-          Built to actually be used
-        </motion.h2>
+      {/* CORE FEATURES */}
+      <section id="features" className="w-full border-t border-[#E5E6F9] py-20 px-4 transition-colors dark:border-white/[0.06]">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#A4873E] dark:text-[#dfb962]">
+              Capabilities
+            </span>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-[#175624] dark:text-white">
+              Built for precision and daily utility
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {[
-            {
-              title: "Automatic categorization",
-              desc: "Every transaction is sorted by AI — and corrections you make are remembered permanently.",
-              color: "#c9a24b",
-            },
-            {
-              title: "A dashboard that speaks plainly",
-              desc: "Category breakdowns, trends, and a written summary of your month — not just raw numbers.",
-              color: "#5fa88f",
-            },
-            {
-              title: "Chat with your own data",
-              desc: 'Ask questions like "what did I spend on food last week?" and get answers grounded in your real statement.',
-              color: "#5b7fa6",
-            },
-            {
-              title: "Private by design",
-              desc: "Row-level security means your data is scoped to your account alone, end to end.",
-              color: "#b5495b",
-            },
-          ].map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 24, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{
-                y: -6,
-                scale: 1.02,
-                borderColor: f.color,
-                boxShadow: `0 12px 30px -14px ${f.color}66`,
-              }}
-              style={{ borderColor: "var(--hairline)" }}
-              className="group rounded-lg border bg-[var(--surface)]/60 p-6"
-            >
-              <span
-                className="mb-4 block h-1.5 w-8 rounded-full transition-all duration-300 group-hover:w-14"
-                style={{ backgroundColor: f.color }}
-              />
-              <h3 className="mb-2 font-[family-name:var(--font-display)] text-lg font-semibold text-[var(--ivory)]">
-                {f.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-[var(--slate)]">
-                {f.desc}
-              </p>
-            </motion.div>
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              {
+                title: "Universal Statement Parser",
+                desc: "Natively converts PDF, Excel spreadsheets, and irregular CSV exports into standardized clean ledger records.",
+                icon: FileSpreadsheet,
+              },
+              {
+                title: "Merchant Memory Engine",
+                desc: "When you assign a transaction to a new category, FinCoach permanently learns that merchant for all subsequent uploads.",
+                icon: BrainCircuit,
+              },
+              {
+                title: "Natural-Language AI Advisor",
+                desc: "Ask specific queries like 'What did I spend on dining out last weekend?' and get verified answers from your data.",
+                icon: MessageSquare,
+              },
+              {
+                title: "Subscription Cadence Audit",
+                desc: "Automatically isolates recurring charges by tracking merchant frequency and calculating average run rates.",
+                icon: Layers,
+              },
+            ].map((f) => {
+              const Icon = f.icon;
+              return (
+                <div
+                  key={f.title}
+                  className="group rounded-2xl border border-[#E5E6F9] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#A4873E]/50 hover:shadow-md dark:border-white/[0.06] dark:bg-[#111a13] dark:hover:border-[#dfb962]/40"
+                >
+                  <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#E5E6F9] text-[#175624] transition-transform duration-300 group-hover:scale-110 dark:bg-[#17241b] dark:text-[#dfb962]">
+                    <Icon className="h-4.5 w-4.5" />
+                  </div>
+                  <h3 className="text-sm font-bold text-[#175624] dark:text-white mb-1.5 flex items-center justify-between">
+                    <span>{f.title}</span>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-[#A4873E] opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-[#dfb962]" />
+                  </h3>
+                  <p className="text-xs text-[#333333]/85 leading-relaxed dark:text-slate-400">
+                    {f.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* FINAL CTA + FOOTER */}
-      <section className="relative w-full max-w-5xl border-t border-[var(--hairline)] px-4 py-24 text-center">
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto mb-6 h-px w-10 bg-[var(--gold)]/40"
-        />
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mb-6 font-[family-name:var(--font-display)] text-3xl font-semibold text-[var(--ivory)] sm:text-4xl"
-        >
-          Your statement is already telling a story.
-          <br />
-          <span className="text-[var(--gold)]">Let&apos;s read it together.</span>
-        </motion.h2>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="relative inline-block"
-        >
-          <motion.div
-            animate={{ scale: [1, 1.3, 1], opacity: [0.25, 0.5, 0.25] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute inset-0 -z-10 rounded-full bg-[var(--gold)] blur-2xl"
-          />
-          <Button
-            size="lg"
-            className="relative bg-[var(--gold)] text-[var(--ink)] shadow-lg shadow-[var(--gold)]/20 transition-transform hover:scale-105 hover:bg-[var(--gold)]/90"
-          >
-            Get Started — it&apos;s free
-          </Button>
-        </motion.div>
-
-        <p className="mt-20 text-xs text-[var(--slate)]">
-          FinCoach AI — built as a full-stack + AI portfolio project.
-        </p>
+      {/* SECURITY CALLOUT */}
+      <section id="security" className="w-full border-t border-[#E5E6F9] bg-white py-16 px-4 transition-colors dark:border-white/[0.06] dark:bg-[#0c120e]">
+        <div className="group mx-auto max-w-4xl rounded-2xl border border-[#E5E6F9] bg-[#f8f9fd] p-6 sm:p-8 text-center transition-all duration-300 hover:border-[#A4873E]/50 hover:shadow-md dark:border-white/[0.08] dark:bg-[#111a13] dark:hover:border-[#dfb962]/30">
+          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#175624] text-[#A4873E] transition-transform duration-300 group-hover:scale-110 dark:bg-[#dfb962] dark:text-[#080e0a]">
+            <Lock className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-bold text-[#175624] dark:text-white">
+            Row-Level Data Isolation
+          </h3>
+          <p className="mt-2 max-w-md mx-auto text-xs text-[#333333]/85 leading-relaxed dark:text-slate-400">
+            Transactions are stored in PostgreSQL with strict Row-Level Security policies. Only your authenticated session can access your financial ledger.
+          </p>
+        </div>
       </section>
+
+      {/* FOOTER */}
+      <footer className="mt-auto border-t border-[#E5E6F9] py-8 px-4 text-center text-xs text-[#333333]/70 dark:border-white/[0.06] dark:text-slate-500">
+        <p>© {new Date().getFullYear()} FinCoach AI. Engineered for personal wealth clarity.</p>
+      </footer>
     </main>
   );
 }

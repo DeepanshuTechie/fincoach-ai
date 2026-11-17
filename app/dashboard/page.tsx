@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import DashboardCharts from "./dashboard-charts";
 import { generateMonthlyInsight } from "@/lib/insights";
+import { DashboardNav } from "@/components/dashboard-nav";
+import { AlertCircle, Calendar, Sparkles } from "lucide-react";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -16,7 +18,9 @@ export default async function DashboardPage() {
 
   const { data: transactions } = await supabase
     .from("transactions")
-    .select("id, description, amount, transaction_date, category_id, categories(name, color)")
+    .select(
+      "id, description, amount, transaction_date, category_id, categories(name, color)"
+    )
     .order("transaction_date", { ascending: false });
 
   const { data: categories } = await supabase
@@ -24,7 +28,16 @@ export default async function DashboardPage() {
     .select("id, name, color")
     .order("name");
 
-  const insight = await generateMonthlyInsight(transactions || []);
+  // Normalize transactions categories property so it is strictly single object or null
+  const normalizedTransactions = (transactions || []).map((t) => {
+    const cat = Array.isArray(t.categories) ? t.categories[0] : t.categories;
+    return {
+      ...t,
+      categories: cat as { name: string; color: string } | null,
+    };
+  });
+
+  const insight = await generateMonthlyInsight(normalizedTransactions);
 
   const { data: budgets } = await supabase
     .from("budgets")
@@ -37,7 +50,7 @@ export default async function DashboardPage() {
     .split("T")[0];
 
   const thisMonthSpend = new Map<string, number>();
-  (transactions || [])
+  normalizedTransactions
     .filter((t) => t.transaction_date >= monthStart)
     .forEach((t) => {
       if (!t.category_id) return;
@@ -58,45 +71,62 @@ export default async function DashboardPage() {
       };
     });
 
+  const formattedCurrentMonth = now.toLocaleDateString("en-IN", {
+    month: "long",
+    year: "numeric",
+  });
+
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-8">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-[#f8f9fd] text-[#333333] transition-colors duration-200 dark:bg-[#080e0a] dark:text-[#f5f7fa]">
+      <DashboardNav userEmail={user.email} />
+
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Top Header / Greeting */}
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <p className="text-sm text-slate-500">Welcome back</p>
-            <h1 className="text-2xl font-bold text-slate-900">{user.email}</h1>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              <Calendar className="h-3.5 w-3.5 text-[#175624] dark:text-[#34d399]" />
+              <span>{formattedCurrentMonth} Overview</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#175624] dark:text-white">
+              Financial Portfolio
+            </h1>
           </div>
-          <div className="flex gap-2">
-            <a href="/dashboard/budgets" className="rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">Budgets</a>
-            <a href="/dashboard/subscriptions" className="rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">Subscriptions</a>
-            <a href="/dashboard/chat" className="rounded-md border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50">Chat with AI</a>
-            <a href="/dashboard/upload" className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Upload Statement</a>
+
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E6F9] bg-white px-3 py-1 text-xs font-medium text-[#333333] shadow-2xs dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#dfb962]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#A4873E] dark:bg-[#dfb962] animate-pulse" />
+              Realtime Sync
+            </span>
           </div>
         </div>
 
-               {overBudgetCategories.length > 0 && (
-          <div className="relative mb-6 overflow-hidden rounded-lg border-2 border-red-300 bg-red-50 p-5 shadow-md">
-            <div className="absolute -right-6 -top-6 h-24 w-24 animate-ping rounded-full bg-red-200 opacity-40" />
-            <div className="relative flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-600 text-white">
-                <span className="text-base font-bold">
-                  {overBudgetCategories.length}
-                </span>
-              </div>
-              <div>
-                <p className="mb-1 text-sm font-bold uppercase tracking-wide text-red-700">
-                  🔔 Budget Alert — {overBudgetCategories.length}{" "}
-                  {overBudgetCategories.length === 1 ? "category" : "categories"}{" "}
-                  over limit
-                </p>
-                <div className="space-y-1">
+        {/* Budget Warning Banner (if any) */}
+        {overBudgetCategories.length > 0 && (
+          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50/90 p-4 text-xs text-rose-900 shadow-2xs dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-200">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-4.5 w-4.5 text-rose-600 shrink-0 mt-0.5 dark:text-rose-400" />
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold uppercase tracking-wider text-[11px] text-rose-700 dark:text-rose-400">
+                    Budget Variance Alert
+                  </span>
+                  <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">
+                    {overBudgetCategories.length} {overBudgetCategories.length === 1 ? "Category" : "Categories"} Exceeded
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
                   {overBudgetCategories.map((c) => (
-                    <p key={c.name} className="text-sm text-red-700">
-                      <span className="font-semibold">{c.name}:</span> ₹
-                      {c.spent.toLocaleString()} spent — ₹
-                      {(c.spent - c.limit).toLocaleString()} over your ₹
-                      {c.limit.toLocaleString()} limit
-                    </p>
+                    <div
+                      key={c.name}
+                      className="rounded-lg border border-rose-200 bg-white/80 px-3 py-1.5 text-xs font-medium dark:border-rose-500/20 dark:bg-white/[0.02]"
+                    >
+                      <span className="font-bold text-[#333333] dark:text-white">{c.name}:</span>{" "}
+                      <span className="text-rose-700 dark:text-rose-300 font-tabular font-semibold">
+                        ₹{c.spent.toLocaleString("en-IN")}
+                      </span>{" "}
+                      (₹{(c.spent - c.limit).toLocaleString("en-IN")} over ₹{c.limit.toLocaleString("en-IN")})
+                    </div>
                   ))}
                 </div>
               </div>
@@ -104,19 +134,35 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        <div className="mb-6 rounded-lg border border-emerald-100 bg-emerald-50 p-5">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            ✨ Your Money Story
-          </p>
-          <p className="text-sm leading-relaxed text-emerald-900">{insight}</p>
+        {/* Monthly Executive Briefing (AI Insight) */}
+        <div className="mb-8 rounded-2xl border border-[#E5E6F9] bg-white p-5 shadow-xs dark:border-white/[0.08] dark:bg-[#11141d]">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#E5E6F9] text-[#175624] dark:bg-[#dfb962]/15 dark:text-[#dfb962]">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#333333] dark:text-slate-300">
+                  Monthly Financial Briefing
+                </span>
+                <span className="rounded-md bg-[#A4873E]/10 px-1.5 py-0.5 text-[10px] font-mono font-medium text-[#A4873E] dark:bg-white/[0.06] dark:text-[#dfb962]">
+                  Gemini AI
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-[#333333]/90 leading-relaxed dark:text-slate-300">
+                {insight}
+              </p>
+            </div>
+          </div>
         </div>
 
+        {/* Dashboard Charts & Transaction Workspace */}
         <DashboardCharts
-          transactions={transactions || []}
+          transactions={normalizedTransactions}
           categories={categories || []}
           userId={user.id}
         />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

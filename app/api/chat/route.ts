@@ -26,15 +26,14 @@ export async function POST(request: NextRequest) {
     .limit(200);
 
   const transactionSummary = (transactions || [])
-    .map(
-      (t) =>
-        `${t.transaction_date} | ${t.description} | ₹${t.amount} | ${
-          t.categories?.name || "Uncategorized"
-        }`
-    )
+    .map((t) => {
+      const cat = Array.isArray(t.categories) ? t.categories[0] : t.categories;
+      const catName = (cat as { name?: string } | null)?.name || "Uncategorized";
+      return `${t.transaction_date} | ${t.description} | ₹${t.amount} | ${catName}`;
+    })
     .join("\n");
 
-  const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const systemContext = `You are a helpful personal finance assistant. You have access to the user's real transaction history below. Answer their questions using ONLY this data. Be specific with numbers (use ₹ for amounts). If the data doesn't have enough information to answer, say so honestly instead of guessing.
 

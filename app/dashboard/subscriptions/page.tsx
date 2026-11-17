@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
+import { DashboardNav } from "@/components/dashboard-nav";
+import Link from "next/link";
+import { ArrowLeft, RefreshCw, Layers } from "lucide-react";
 
 type Category = {
   name: string;
@@ -64,25 +67,17 @@ export default async function SubscriptionsPage() {
 
   ((transactions || []) as Transaction[]).forEach((transaction) => {
     const description = transaction.description?.trim();
-
-    if (!description) {
-      return;
-    }
+    if (!description) return;
 
     const amount = Number(transaction.amount ?? 0);
-
-    if (!Number.isFinite(amount)) {
-      return;
-    }
+    if (!Number.isFinite(amount)) return;
 
     const category = Array.isArray(transaction.categories)
       ? transaction.categories[0]
       : transaction.categories;
 
     // Ignore income transactions
-    if (category?.name?.toLowerCase() === "income") {
-      return;
-    }
+    if (category?.name?.toLowerCase() === "income") return;
 
     const color = category?.color || "#64748b";
     const transactionDate = transaction.transaction_date || "";
@@ -122,15 +117,9 @@ export default async function SubscriptionsPage() {
   }, 0);
 
   const formatDate = (date: string) => {
-    if (!date) {
-      return "Unknown";
-    }
-
+    if (!date) return "Unknown";
     const parsedDate = new Date(date);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      return date;
-    }
+    if (Number.isNaN(parsedDate.getTime())) return date;
 
     return parsedDate.toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -140,87 +129,109 @@ export default async function SubscriptionsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-8">
-      <div className="mx-auto max-w-3xl">
+    <div className="min-h-screen bg-[#f8f9fd] text-[#333333] transition-colors duration-200 dark:bg-[#080e0a] dark:text-[#f5f7fa]">
+      <DashboardNav userEmail={user.email} />
+
+      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm text-slate-500">Detected</p>
-
-            <h1 className="text-2xl font-bold text-slate-900">
-              Recurring Payments
-            </h1>
-          </div>
-
-          <a
+        <div className="mb-8">
+          <Link
             href="/dashboard"
-            className="rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#175624] hover:text-[#12441d] dark:text-[#dfb962] dark:hover:text-[#f0cf7e] transition mb-3"
           >
-            Back to Dashboard
-          </a>
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Back to Dashboard</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E5E6F9] text-[#175624] dark:bg-[#dfb962]/15 dark:text-[#dfb962]">
+              <RefreshCw className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight text-[#175624] dark:text-white">
+                Recurring Subscriptions
+              </h1>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Automated cadence analysis across verified statement records
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Monthly Total */}
+        {/* Estimated Monthly Run Rate Card */}
         {recurring.length > 0 && (
-          <Card className="mb-6 border-emerald-100 bg-emerald-50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-              Estimated recurring spend
-            </p>
-
-            <p className="mt-1 text-2xl font-bold text-emerald-900">
-              ~₹{Math.round(monthlyTotal).toLocaleString("en-IN")} / month
-            </p>
-          </Card>
+          <div className="mb-6 rounded-2xl border border-[#E5E6F9] bg-white p-5 shadow-xs dark:border-white/[0.08] dark:bg-[#11141d]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Projected Monthly Run Rate
+                </p>
+                <p className="mt-1 text-2xl font-extrabold text-[#333333] dark:text-white font-tabular">
+                  ~₹{Math.round(monthlyTotal).toLocaleString("en-IN")}{" "}
+                  <span className="text-xs font-normal text-slate-400">/ month</span>
+                </p>
+              </div>
+              <div className="rounded-full bg-[#E5E6F9] px-3 py-1 text-xs font-semibold text-[#175624] dark:bg-[#dfb962]/15 dark:text-[#dfb962]">
+                {recurring.length} Recurring Charges
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Empty State */}
         {recurring.length === 0 ? (
-          <Card className="p-6 text-sm text-slate-400">
-            No recurring payments detected yet. This shows up once a merchant
-            appears 2 or more times in your transactions.
+          <Card className="p-8 text-center text-sm text-slate-500 border-[#E5E6F9] bg-white dark:border-white/[0.08] dark:bg-[#11141d]">
+            <RefreshCw className="h-8 w-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+            <p className="font-semibold text-[#333333] dark:text-slate-300">
+              No recurring payments identified yet
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              Merchants appearing 2 or more times across your statement history will be cataloged here automatically.
+            </p>
           </Card>
         ) : (
-          /* Recurring Payments */
+          /* Recurring Subscriptions List */
           <div className="space-y-3">
             {recurring.map((payment) => (
               <Card
                 key={payment.description}
-                className="flex items-center justify-between gap-4 p-4"
+                className="flex items-center justify-between gap-4 p-4 border-[#E5E6F9] bg-white shadow-xs hover:border-[#A4873E]/40 dark:border-white/[0.08] dark:bg-[#11141d] dark:hover:border-[#dfb962]/30 transition"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{
-                      backgroundColor: payment.color,
-                    }}
+                    style={{ backgroundColor: payment.color }}
                   />
 
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-slate-800">
+                    <p className="truncate font-semibold text-[#333333] dark:text-white text-sm">
                       {payment.description}
                     </p>
 
-                    <p className="text-xs text-slate-400">
-                      Seen {payment.count} times · last on{" "}
-                      {formatDate(payment.lastDate)}
-                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="inline-block rounded-md bg-[#E5E6F9]/60 px-2 py-0.5 text-[10px] font-medium text-[#175624] dark:bg-white/[0.06] dark:text-slate-300">
+                        {payment.count} occurrences
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        Last billed on {formatDate(payment.lastDate)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <p className="shrink-0 font-semibold text-slate-900">
-                  ₹
-                  {Math.round(
-                    payment.total / payment.count
-                  ).toLocaleString("en-IN")}
-                  <span className="ml-1 text-xs font-normal text-slate-400">
-                    /avg
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-[#175624] dark:text-[#dfb962] text-base font-tabular">
+                    ₹{Math.round(payment.total / payment.count).toLocaleString("en-IN")}
+                  </p>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                    Average charge
                   </span>
-                </p>
+                </div>
               </Card>
             ))}
           </div>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

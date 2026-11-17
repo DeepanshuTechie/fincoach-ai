@@ -8,16 +8,23 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "bg-[#175624] text-[#E5E6F9] font-medium shadow-xs hover:bg-[#12441d] active:scale-[0.99] transition-all dark:bg-[#dfb962] dark:text-[#080e0a] dark:font-semibold dark:hover:bg-[#eac36e] dark:shadow-md dark:shadow-[#dfb962]/20",
+        gold:
+          "bg-[#A4873E] text-white font-medium shadow-xs hover:bg-[#8f7433] active:scale-[0.99] transition-all dark:bg-[#dfb962] dark:text-[#080e0a] dark:font-semibold dark:hover:bg-[#eac36e]",
+        pine:
+          "bg-[#175624] text-white font-medium shadow-xs hover:bg-[#1b632a] active:scale-[0.99] transition-all dark:bg-[#34d399] dark:text-[#080e0a] dark:font-semibold dark:hover:bg-[#4ade80]",
+        frost:
+          "bg-[#E5E6F9] text-[#175624] border border-[#d2d4f2] font-medium hover:bg-[#d8daf5] active:scale-[0.99] transition-all dark:bg-[#E5E6F9]/15 dark:text-[#E5E6F9] dark:border-[#E5E6F9]/25 dark:hover:bg-[#E5E6F9]/25",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border border-[#e2e4f0] bg-white text-[#333333] hover:bg-[#E5E6F9]/40 hover:text-[#175624] hover:border-[#A4873E]/40 active:scale-[0.99] transition-all dark:border-white/10 dark:bg-white/[0.04] dark:text-[#f5f7fa] dark:hover:bg-white/[0.08] dark:hover:text-white dark:hover:border-[#dfb962]/30",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-[#E5E6F9]/60 text-[#333333] hover:bg-[#E5E6F9] active:scale-[0.99] transition-all dark:bg-white/[0.08] dark:text-white dark:hover:bg-white/[0.12] dark:border dark:border-white/[0.08]",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "hover:bg-[#E5E6F9]/50 hover:text-[#175624] text-[#333333] transition-colors dark:text-[#9ca3af] dark:hover:bg-white/[0.06] dark:hover:text-white",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 active:scale-[0.99] dark:bg-rose-500/15 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/25",
+        link: "text-[#A4873E] underline-offset-4 hover:underline dark:text-[#dfb962]",
       },
       size: {
         default:
