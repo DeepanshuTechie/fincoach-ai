@@ -215,6 +215,8 @@ export async function categorizeTransactions(
       model: "gemini-3-flash-preview",
       generationConfig: {
         responseMimeType: "application/json",
+        temperature: 0.1,
+        maxOutputTokens: 800,
       },
     });
 
@@ -266,6 +268,8 @@ export async function categorizeWithHint(
       model: "gemini-3-flash-preview",
       generationConfig: {
         responseMimeType: "application/json",
+        temperature: 0.1,
+        maxOutputTokens: 800,
       },
     });
 

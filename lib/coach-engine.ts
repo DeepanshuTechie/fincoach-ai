@@ -321,14 +321,65 @@ export function simulateAffordability(
   };
 }
 
+// High-performance Coach Plan Cache
+const coachPlanCache = new Map<string, { plan: CoachActionPlan; timestamp: number }>();
+const COACH_CACHE_TTL = 10 * 60 * 1000;
+
 /**
  * 3. AI Persona-driven Weekly Coaching Drills
  */
 export async function generatePersonaCoachPlan(
   transactions: RawTxn[],
-  persona: "shark" | "buffett" | "zen" = "shark"
+  persona: "shark" | "buffett" | "zen" = "shark",
+  instantOnly: boolean = false
 ): Promise<CoachActionPlan> {
   const finScore = calculateFinScore(transactions);
+
+  // Fast cache fingerprint
+  const cacheKey = `${persona}_${transactions.length}_${finScore.score}`;
+  const cached = coachPlanCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < COACH_CACHE_TTL) {
+    return cached.plan;
+  }
+
+  // Programmatic high-precision plan (0ms response)
+  const defaultPlan: CoachActionPlan = {
+    headline:
+      persona === "shark"
+        ? `You're burning ₹${finScore.metrics.burnRatePerDay}/day! Time to plug discretionary leaks and build a fortress.`
+        : persona === "buffett"
+        ? `Your retained savings rate is ${finScore.metrics.savingsRatePercent}%. Every ₹1,000 saved today is ₹1,760 in 5 years.`
+        : `You are in a stable position with ${finScore.metrics.runwayDays} days of runway. Small shifts this week will unlock peace of mind.`,
+    weeklyMissions: [
+      {
+        title: "Cap Convenience Food Deliveries",
+        description: "Switch 2 weekday food deliveries to home meals. High delivery fees and surcharges drain cash silently.",
+        potentialSavings: 2400,
+        category: "Food & Dining",
+        difficulty: "Easy",
+      },
+      {
+        title: "Audit Autopay Subscriptions",
+        description: "Review recurring streaming or digital passes. Pause at least one non-essential service this month.",
+        potentialSavings: 649,
+        category: "Subscriptions",
+        difficulty: "Easy",
+      },
+      {
+        title: "Enforce the 48-Hour Cart Rule",
+        description: "Wait 48 hours before purchasing any non-essential item over ₹1,000. 70% of impulse urge evaporates.",
+        potentialSavings: 3500,
+        category: "Shopping",
+        difficulty: "Medium",
+      },
+    ],
+    opportunityCostNote: `Deploying these combined savings (₹6,549/mo) into an index fund yields ~₹5.2 Lakhs in 5 years.`,
+  };
+
+  if (instantOnly) {
+    coachPlanCache.set(cacheKey, { plan: defaultPlan, timestamp: Date.now() });
+    return defaultPlan;
+  }
 
   // Group high merchants
   const merchantTotals = new Map<string, number>();
@@ -382,7 +433,11 @@ Return ONLY valid JSON matching this schema:
   try {
     const model = genAI.getGenerativeModel({
       model: "gemini-3-flash-preview",
-      generationConfig: { responseMimeType: "application/json" },
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.2,
+        maxOutputTokens: 600,
+      },
     });
 
     const result = await model.generateContent(prompt);
@@ -390,43 +445,13 @@ Return ONLY valid JSON matching this schema:
     const parsed: CoachActionPlan = JSON.parse(text);
 
     if (parsed.headline && Array.isArray(parsed.weeklyMissions)) {
+      coachPlanCache.set(cacheKey, { plan: parsed, timestamp: Date.now() });
       return parsed;
     }
   } catch (err) {
     console.warn("Gemini Coach Plan fallback:", err);
   }
 
-  // High-reliability programmatic fallback
-  return {
-    headline:
-      persona === "shark"
-        ? `You're burning ₹${finScore.metrics.burnRatePerDay}/day! Time to plug the leaks and build a fortress.`
-        : persona === "buffett"
-        ? `Your retained savings rate is ${finScore.metrics.savingsRatePercent}%. Every ₹1,000 saved today is ₹1,760 in 5 years.`
-        : `You are in a stable position with ${finScore.metrics.runwayDays} days of runway. Small shifts this week will unlock peace of mind.`,
-    weeklyMissions: [
-      {
-        title: "Cap Convenience Food Deliveries",
-        description: "Switch 2 weekday food deliveries to home meals. High delivery fees and surcharges drain cash silently.",
-        potentialSavings: 2400,
-        category: "Food & Dining",
-        difficulty: "Easy",
-      },
-      {
-        title: "Audit Autopay Subscriptions",
-        description: "Review recurring streaming or digital passes. Pause at least one non-essential service this month.",
-        potentialSavings: 649,
-        category: "Subscriptions",
-        difficulty: "Easy",
-      },
-      {
-        title: "Enforce the 48-Hour Cart Rule",
-        description: "Wait 48 hours before purchasing any non-essential item over ₹1,000. 70% of impulse urge evaporates.",
-        potentialSavings: 3500,
-        category: "Shopping",
-        difficulty: "Medium",
-      },
-    ],
-    opportunityCostNote: `Deploying these combined savings (₹6,549/mo) into an index fund yields ~₹5.2 Lakhs in 5 years.`,
-  };
+  coachPlanCache.set(cacheKey, { plan: defaultPlan, timestamp: Date.now() });
+  return defaultPlan;
 }

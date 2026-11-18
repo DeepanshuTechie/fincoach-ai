@@ -34,8 +34,8 @@ export default async function CoachPage() {
     categories: Array.isArray(t.categories) ? t.categories[0] : t.categories,
   }));
 
-  // Initial coach plan with Shark persona
-  const initialPlan = await generatePersonaCoachPlan(transactions, "shark");
+  // Initial coach plan with Shark persona (instant render in 0ms, dynamic switching via client API)
+  const initialPlan = await generatePersonaCoachPlan(transactions, "shark", true);
 
   return (
     <div className="min-h-screen bg-[#f8f9fd] text-[#333333] transition-colors duration-200 dark:bg-[#080e0a] dark:text-[#f5f7fa] flex flex-col">
@@ -55,14 +55,14 @@ export default async function CoachPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#175624] dark:text-white">
-                  Autonomous AI Financial Coach
+                  Autonomous AI Financial Coach &amp; Personal CA
                 </h1>
                 <span className="rounded-full bg-[#175624] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white dark:bg-[#dfb962] dark:text-[#080e0a]">
-                  Proactive Hub
+                  Chartered Hub
                 </span>
               </div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
-                Decision intelligence, 6-month What-If simulation, and multi-persona tactical guidance
+                Indian Tax Deductions (80C/80D/NPS), FOIR debt diagnostics, What-If simulation &amp; Executive CA PDF export
               </p>
             </div>
           </div>
