@@ -65,7 +65,7 @@ export async function generateMonthlyInsight(
 `;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const prompt = `You are a friendly personal finance coach. Based on these facts about a user's spending, write a short, warm 2-3 sentence summary. Be specific with numbers. If there's a recurring merchant or a dominant category, mention it and give one actionable tip.
 

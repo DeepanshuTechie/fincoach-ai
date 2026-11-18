@@ -20,7 +20,9 @@ import {
   AlertCircle,
   RotateCw,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
+import { Visual3DShield } from "@/components/ui/fintech-3d-visuals";
 
 export default function SignupPage() {
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
@@ -207,10 +209,10 @@ export default function SignupPage() {
         </div>
 
         <Card className="animate-fade-in-up w-full max-w-md p-7 text-center border-[#E5E6F9] bg-white shadow-xl dark:border-white/[0.08] dark:bg-[#11141d]">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E5E6F9] text-[#175624] dark:bg-[#dfb962]/15 dark:text-[#dfb962]">
-            <MailCheck className="h-6 w-6" />
+          <div className="mx-auto mb-2 flex items-center justify-center">
+            <Visual3DShield className="h-16 w-16" />
           </div>
-          <h1 className="mb-1 text-lg font-bold text-[#175624] dark:text-white">
+          <h1 className="mb-1 text-lg font-bold text-[#0E3010] dark:text-white">
             Account Created Successfully
           </h1>
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
@@ -225,7 +227,7 @@ export default function SignupPage() {
               size="sm"
               onClick={handleResendEmail}
               disabled={resending}
-              className="w-full text-xs border-[#E5E6F9] text-[#175624] hover:bg-[#E5E6F9]/50 dark:border-white/10 dark:text-[#dfb962] dark:hover:bg-white/[0.06]"
+              className="w-full text-xs border-[#E5E6F9] text-[#0E3010] hover:bg-[#E5E6F9]/50 dark:border-white/10 dark:text-[#dfb962] dark:hover:bg-white/[0.06]"
             >
               {resending ? (
                 <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
@@ -235,7 +237,7 @@ export default function SignupPage() {
               Resend Confirmation Email
             </Button>
             {resendStatus && (
-              <p className="text-[11px] font-medium text-[#175624] dark:text-[#34d399]">
+              <p className="text-[11px] font-medium text-[#0E3010] dark:text-[#34d399]">
                 {resendStatus}
               </p>
             )}
@@ -243,7 +245,7 @@ export default function SignupPage() {
 
           <div className="flex flex-col gap-2">
             <Link href="/login">
-              <Button className="w-full font-semibold bg-[#175624] text-white hover:bg-[#12441d] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]">
+              <Button className="w-full font-semibold bg-[#0E3010] text-white hover:bg-[#18481b] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]">
                 Proceed to Sign In
               </Button>
             </Link>
@@ -269,13 +271,10 @@ export default function SignupPage() {
       <Card className="animate-fade-in-up relative z-10 w-full max-w-sm p-7 border-[#E5E6F9] bg-white shadow-xl transition-all duration-300 dark:border-white/[0.08] dark:bg-[#11141d]">
         {/* Logo */}
         <div className="mb-5 flex flex-col items-center text-center">
-          <Link
-            href="/"
-            className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#175624] text-[#A4873E] shadow-xs transition-transform duration-200 hover:scale-105 dark:bg-[#162419] dark:text-[#dfb962] dark:border dark:border-[#dfb962]/30"
-          >
-            <TrendingUp className="h-5 w-5 stroke-[2.5]" />
+          <Link href="/" className="mb-2 inline-block transition-transform duration-200 hover:scale-105">
+            <Visual3DShield className="h-14 w-14" />
           </Link>
-          <h1 className="text-xl font-bold tracking-tight text-[#175624] dark:text-white">
+          <h1 className="text-xl font-bold tracking-tight text-[#0E3010] dark:text-white">
             Create your account
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -291,11 +290,10 @@ export default function SignupPage() {
               setAuthMethod("email");
               setError("");
             }}
-            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
-              authMethod === "email"
-                ? "bg-white text-[#175624] shadow-2xs dark:bg-[#dfb962] dark:text-[#080e0a]"
-                : "text-[#333333]/70 hover:text-[#333333] dark:text-slate-400 dark:hover:text-white"
-            }`}
+            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${authMethod === "email"
+              ? "bg-white text-[#0E3010] shadow-2xs dark:bg-[#dfb962] dark:text-[#080e0a]"
+              : "text-[#333333]/70 hover:text-[#333333] dark:text-slate-400 dark:hover:text-white"
+              }`}
           >
             <Mail className="h-3.5 w-3.5" />
             <span>Email</span>
@@ -306,11 +304,10 @@ export default function SignupPage() {
               setAuthMethod("phone");
               setError("");
             }}
-            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
-              authMethod === "phone"
-                ? "bg-white text-[#175624] shadow-2xs dark:bg-[#dfb962] dark:text-[#080e0a]"
-                : "text-[#333333]/70 hover:text-[#333333] dark:text-slate-400 dark:hover:text-white"
-            }`}
+            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${authMethod === "phone"
+              ? "bg-white text-[#0E3010] shadow-2xs dark:bg-[#dfb962] dark:text-[#080e0a]"
+              : "text-[#333333]/70 hover:text-[#333333] dark:text-slate-400 dark:hover:text-white"
+              }`}
           >
             <Smartphone className="h-3.5 w-3.5" />
             <span>Mobile OTP</span>
@@ -360,7 +357,7 @@ export default function SignupPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 mt-1 font-semibold bg-[#175624] text-white hover:bg-[#12441d] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
+              className="w-full py-2.5 mt-1 font-semibold bg-[#0E3010] text-white hover:bg-[#18481b] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -421,7 +418,7 @@ export default function SignupPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 font-semibold bg-[#175624] text-white hover:bg-[#12441d] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
+                  className="w-full py-2.5 font-semibold bg-[#0E3010] text-white hover:bg-[#18481b] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -446,7 +443,7 @@ export default function SignupPage() {
                     <button
                       type="button"
                       onClick={() => setOtpSent(false)}
-                      className="text-[11px] text-[#175624] hover:underline dark:text-[#dfb962]"
+                      className="text-[11px] text-[#0E3010] hover:underline dark:text-[#dfb962]"
                     >
                       Change number
                     </button>
@@ -475,7 +472,7 @@ export default function SignupPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 font-semibold bg-[#175624] text-white hover:bg-[#12441d] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
+                  className="w-full py-2.5 font-semibold bg-[#0E3010] text-white hover:bg-[#18481b] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -498,7 +495,7 @@ export default function SignupPage() {
           Already registered?{" "}
           <Link
             href="/login"
-            className="font-semibold text-[#175624] hover:underline dark:text-[#dfb962]"
+            className="font-semibold text-[#0E3010] hover:underline dark:text-[#dfb962]"
           >
             Sign in
           </Link>

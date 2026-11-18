@@ -52,14 +52,28 @@ export function detectFileType(buffer: Buffer | Uint8Array, fileName: string): F
     };
   }
 
-  // 3. JPEG Detection: 0xFF 0xD8 0xFF
-  if (b0 === 0xff && b1 === 0xd8 && b2 === 0xff) {
+  // 3. JPEG Detection: 0xFF 0xD8 (SOI marker)
+  if (b0 === 0xff && b1 === 0xd8) {
     return {
       fileType: "image",
       mimeType: "image/jpeg",
       isPasswordProtected: false,
       isValid: true,
     };
+  }
+
+  // 3b. WebP Detection: RIFF....WEBP
+  if (b0 === 0x52 && b1 === 0x49 && b2 === 0x46 && b3 === 0x46) {
+    const isWebP = buffer.length > 12 &&
+      buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50;
+    if (isWebP) {
+      return {
+        fileType: "image",
+        mimeType: "image/webp",
+        isPasswordProtected: false,
+        isValid: true,
+      };
+    }
   }
 
   // 4. Excel Modern (.xlsx) ZIP container: 0x50 0x4B 0x03 0x04 (PK\x03\x04)
@@ -109,8 +123,64 @@ export function detectFileType(buffer: Buffer | Uint8Array, fileName: string): F
     };
   }
 
-  // Fallback by extension check if binary structure is slightly altered
+  // Fallback by extension check if binary headers are slightly altered or mobile screenshot
   const lowerName = fileName.toLowerCase();
+
+  // Images fallback
+  if (
+    lowerName.endsWith(".jpg") ||
+    lowerName.endsWith(".jpeg") ||
+    lowerName.endsWith(".png") ||
+    lowerName.endsWith(".webp") ||
+    lowerName.endsWith(".jfif") ||
+    lowerName.endsWith(".bmp") ||
+    lowerName.endsWith(".heic")
+  ) {
+    let mime = "image/jpeg";
+    if (lowerName.endsWith(".png")) mime = "image/png";
+    else if (lowerName.endsWith(".webp")) mime = "image/webp";
+    else if (lowerName.endsWith(".bmp")) mime = "image/bmp";
+    return {
+      fileType: "image",
+      mimeType: mime,
+      isPasswordProtected: false,
+      isValid: true,
+    };
+  }
+
+  // PDF fallback
+  if (lowerName.endsWith(".pdf")) {
+    const isEncrypted = checkPdfEncryption(buffer);
+    return {
+      fileType: "pdf",
+      mimeType: "application/pdf",
+      isPasswordProtected: isEncrypted,
+      isValid: true,
+      errorMessage: isEncrypted
+        ? "This PDF bank statement is password-protected. Please remove the password or provide an unencrypted export."
+        : undefined,
+    };
+  }
+
+  // Excel fallback
+  if (lowerName.endsWith(".xlsx")) {
+    return {
+      fileType: "xlsx",
+      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      isPasswordProtected: false,
+      isValid: true,
+    };
+  }
+  if (lowerName.endsWith(".xls")) {
+    return {
+      fileType: "xls",
+      mimeType: "application/vnd.ms-excel",
+      isPasswordProtected: false,
+      isValid: true,
+    };
+  }
+
+  // CSV/Text fallback
   if (lowerName.endsWith(".csv") || lowerName.endsWith(".tsv") || lowerName.endsWith(".txt")) {
     return {
       fileType: "csv",

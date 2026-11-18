@@ -15,6 +15,7 @@ export const CATEGORIES = [
   "Subscriptions",
   "Entertainment",
   "Utilities",
+  "Medicine",
   "Income",
   "Other",
 ];
@@ -139,6 +140,42 @@ export function heuristicCategorize(description: string): string {
     return "Utilities";
   }
 
+  // Medicine & Healthcare
+  if (
+    desc.includes("apollo") ||
+    desc.includes("pharmacy") ||
+    desc.includes("pharma") ||
+    desc.includes("chemist") ||
+    desc.includes("medicine") ||
+    desc.includes("medplus") ||
+    desc.includes("1mg") ||
+    desc.includes("netmeds") ||
+    desc.includes("pharmeasy") ||
+    desc.includes("hospital") ||
+    desc.includes("clinic") ||
+    desc.includes("doctor") ||
+    desc.includes("dr.") ||
+    desc.includes("dr ") ||
+    desc.includes("healthcare") ||
+    desc.includes("health") ||
+    desc.includes("diagnostics") ||
+    desc.includes("pathology") ||
+    desc.includes("path lab") ||
+    desc.includes("lal path") ||
+    desc.includes("metropolis") ||
+    desc.includes("thyrocare") ||
+    desc.includes("medical") ||
+    desc.includes("druggist") ||
+    desc.includes("dental") ||
+    desc.includes("max healthcare") ||
+    desc.includes("fortis") ||
+    desc.includes("manipal") ||
+    desc.includes("narayana") ||
+    desc.includes("practo")
+  ) {
+    return "Medicine";
+  }
+
   // Entertainment
   if (
     desc.includes("bookmyshow") ||
@@ -175,20 +212,34 @@ export async function categorizeTransactions(
 ): Promise<string[]> {
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-3-flash-preview",
       generationConfig: {
         responseMimeType: "application/json",
       },
     });
 
-    const prompt = `You are a financial transaction categorizer. Given a list of transactions, assign each one to exactly one of these categories: ${CATEGORIES.join(", ")}.
+    const prompt = `You are an expert financial transaction categorizer specialized in Indian and global banking transactions.
+Assign each transaction to the most accurate category from this exact list:
+${CATEGORIES.join(", ")}.
+
+Specialized Domain Guidelines:
+- "Medicine": Any pharmacy, medical store, chemist (Apollo Pharmacy, Medplus, Frank Ross), online medicine apps (Tata 1mg, Netmeds, PharmEasy), hospitals (Max, Fortis, Apollo, Manipal, Narayana), doctors, clinics, dental care, lab tests, pathology (Dr Lal PathLabs, Thyrocare, Metropolis), medicines, and medical equipment.
+- "Food & Dining": Restaurants, food delivery (Swiggy, Zomato, EatClub), groceries (Blinkit, Zepto, Instamart, BigBasket, DMart), cafes (Starbucks, CCD, Chaayos), dining, bakeries.
+- "Transportation": Rides & cabs (Uber, Ola, Rapido), metro card recharge, fuel/petrol pumps (HPCL, BPCL, IOCL, Indian Oil), FASTag, train/flight tickets (IRCTC, MakeMyTrip, IndiGo, Air India), bus tickets.
+- "Subscriptions": Digital subscriptions & SaaS (Netflix, Spotify, Prime Video, YouTube Premium, Disney+ Hotstar, Apple iCloud, Google One, OpenAI ChatGPT, GitHub, AWS).
+- "Shopping": E-commerce & retail (Amazon, Flipkart, Myntra, Ajio, Meesho, Nykaa, Zara, H&M, Uniqlo, Croma, Reliance Digital).
+- "Utilities": Home utilities (Electricity bills, Water board, Piped gas, Mobile & DTH recharges via Airtel, Jio, Vi, Broadband/Wi-Fi).
+- "Entertainment": Movies (BookMyShow, PVR, INOX, Cinepolis), gaming (Steam, PlayStation), concerts, clubs.
+- "Rent & Housing": Apartment rent, society maintenance, brokerage, housing society charges.
+- "Income": Salary credits, interest, dividend payments, refunds, cashbacks.
+- "Other": Only use if the transaction genuinely does not fit any category above.
 
 Transactions:
 ${transactions
   .map((t, i) => `${i + 1}. "${t.description}" - amount: ${t.amount}`)
   .join("\n")}
 
-Respond ONLY with a JSON array of category strings, in the same order as the transactions. Example: ["Food & Dining", "Income", "Shopping"]`;
+Respond ONLY with a valid JSON array of category strings in the exact same order. Example: ["Medicine", "Food & Dining", "Shopping"]`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
@@ -212,7 +263,7 @@ export async function categorizeWithHint(
 ): Promise<string> {
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-3-flash-preview",
       generationConfig: {
         responseMimeType: "application/json",
       },

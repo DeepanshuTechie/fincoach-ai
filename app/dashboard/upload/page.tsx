@@ -39,6 +39,7 @@ import {
   parseCsvStatement,
   parseExcelStatement,
 } from "@/lib/universal-parser";
+import { Visual3DVault } from "@/components/ui/fintech-3d-visuals";
 import {
   generateSyntheticAxisCsv,
   generateSyntheticPnbWorkbook,
@@ -51,6 +52,7 @@ import {
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
@@ -66,20 +68,17 @@ export default function UploadPage() {
   const supabase = createClient();
 
   // Handles real file upload via Universal Parser API
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-
+  async function processFile(selected: File) {
     setFile(selected);
     setError("");
     setParsing(true);
-    setStatus("Inspecting magic bytes and document layout...");
+    setStatus(`Inspecting "${selected.name}" format and document layout...`);
 
     try {
       const formData = new FormData();
       formData.append("file", selected);
 
-      setStatus("Extracting, standardizing columns and validating balance formulas...");
+      setStatus("Extracting transactions with AI Document Intelligence, standardizing columns & calculating balance reconciliation...");
       const res = await fetch("/api/statement/parse", {
         method: "POST",
         body: formData,
@@ -101,6 +100,13 @@ export default function UploadPage() {
       const msg = err instanceof Error ? err.message : "Upload processing failed";
       setError(msg);
       setParsing(false);
+    }
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0];
+    if (selected) {
+      processFile(selected);
     }
   }
 
@@ -334,15 +340,37 @@ export default function UploadPage() {
               </div>
 
               {/* Upload Drop Area */}
-              <div className="mb-6 rounded-2xl border-2 border-dashed border-[#E5E6F9] p-8 text-center transition hover:border-[#A4873E]/60 dark:border-white/10 dark:hover:border-[#dfb962]/40">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E5E6F9] text-[#175624] dark:bg-[#dfb962]/15 dark:text-[#dfb962]">
-                  <UploadCloud className="h-6 w-6" />
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  const droppedFile = e.dataTransfer.files?.[0];
+                  if (droppedFile) {
+                    processFile(droppedFile);
+                  }
+                }}
+                className={`mb-6 rounded-2xl border-2 border-dashed p-8 text-center transition ${
+                  isDragging
+                    ? "border-[#175624] bg-[#175624]/10 dark:border-[#dfb962] dark:bg-[#dfb962]/10"
+                    : "border-[#E5E6F9] hover:border-[#A4873E]/60 dark:border-white/10 dark:hover:border-[#dfb962]/40"
+                }`}
+              >
+                <div className="mx-auto mb-3 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                  <Visual3DVault className="h-20 w-20" />
                 </div>
                 <h3 className="text-sm font-bold text-[#333333] dark:text-white">
                   Drop your statement here, or browse disk
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                  Supports .pdf, .xlsx, .xls, .csv, .txt, .png, .jpg (Up to 15MB)
+                  Supports PDF, Excel (.xlsx/.xls), CSV, and Images/Receipts (.jpg, .jpeg, .png, .webp) up to 15MB
                 </p>
 
                 <div className="mt-4 flex justify-center">
@@ -351,11 +379,11 @@ export default function UploadPage() {
                     className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#175624] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-[#12441d] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e]"
                   >
                     <UploadCloud className="h-4 w-4" />
-                    <span>Select Statement File</span>
+                    <span>Select Statement File or Picture</span>
                     <input
                       id="statement-upload"
                       type="file"
-                      accept=".csv, .xlsx, .xls, .pdf, .txt, .tsv, .png, .jpg, .jpeg"
+                      accept=".csv, .xlsx, .xls, .pdf, .txt, .tsv, .png, .jpg, .jpeg, .webp, .jfif, .heic, image/*"
                       onChange={handleFileUpload}
                       disabled={parsing || loading}
                       className="hidden"

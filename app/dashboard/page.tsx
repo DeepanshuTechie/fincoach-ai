@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import DashboardCharts from "./dashboard-charts";
 import { generateMonthlyInsight } from "@/lib/insights";
 import { DashboardNav } from "@/components/dashboard-nav";
-import { AlertCircle, Calendar, Sparkles } from "lucide-react";
+import { AlertCircle, Calendar, Sparkles, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -98,6 +99,38 @@ export default async function DashboardPage() {
               <span className="h-1.5 w-1.5 rounded-full bg-[#A4873E] dark:bg-[#dfb962] animate-pulse" />
               Realtime Sync
             </span>
+          </div>
+        </div>
+
+        {/* AI Financial Coach Hub Hero Teaser */}
+        <div className="mb-6 rounded-2xl border border-[#A4873E]/30 bg-gradient-to-r from-[#175624]/10 via-[#A4873E]/10 to-transparent p-4 sm:p-5 dark:border-[#dfb962]/20 dark:from-[#17241b] dark:via-white/[0.02]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#175624] text-white dark:bg-[#dfb962] dark:text-[#080e0a] shadow-xs">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-[#175624] dark:text-white">
+                    Autonomous AI Financial Coach
+                  </h3>
+                  <span className="rounded-full bg-[#175624] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-white dark:bg-[#dfb962] dark:text-[#080e0a]">
+                    Proactive Hub
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                  Simulate high-ticket purchases with What-If EMI projection, calculate your FinScore (0–1000), and get tactical weekly drills.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/dashboard/coach"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#175624] px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-[#12441d] active:scale-[0.98] dark:bg-[#dfb962] dark:text-[#080e0a] dark:hover:bg-[#eac36e] shrink-0"
+            >
+              <span>Launch AI Coach Hub</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
         </div>
 

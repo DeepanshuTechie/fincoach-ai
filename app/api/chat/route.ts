@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     })
     .join("\n");
 
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
   const systemContext = `You are a helpful personal finance assistant. You have access to the user's real transaction history below. Answer their questions using ONLY this data. Be specific with numbers (use ₹ for amounts). If the data doesn't have enough information to answer, say so honestly instead of guessing.
 

@@ -42,10 +42,10 @@ export async function extractStatementFromDocument(
   const base64Data = Buffer.from(buffer).toString("base64");
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-3-flash-preview",
     generationConfig: {
       responseMimeType: "application/json",
-      temperature: 0.1, // Near zero for highest deterministic extraction accuracy
+      temperature: 0.1, // Deterministic extraction accuracy
     },
   });
 

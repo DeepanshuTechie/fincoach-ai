@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Visual3DShield } from "@/components/ui/fintech-3d-visuals";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -18,6 +19,8 @@ import {
   KeyRound,
   AlertCircle,
   RotateCw,
+  Sparkles,
+  ExternalLink,
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -48,25 +51,118 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     setIsUnconfirmed(false);
+    setResendStatus("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // 1. Server-side login route (avoids adblockers & browser CORS blocks on *.supabase.co)
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (error) {
-      if (error.message.toLowerCase().includes("email not confirmed")) {
-        setIsUnconfirmed(true);
-        setError("Aapka email abhi tak confirm nahi hua hai.");
-      } else {
-        setError(error.message);
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        const errorMsg = result.error || "Login failed";
+        if (
+          errorMsg.toLowerCase().includes("email not confirmed") ||
+          result.isUnconfirmed
+        ) {
+          setIsUnconfirmed(true);
+          setError("Aapka email abhi tak confirm nahi hua hai.");
+        } else if (errorMsg.toLowerCase().includes("invalid login credentials")) {
+          setError("Invalid email or password. Kripya apna email aur password check karein.");
+        } else if (errorMsg.toLowerCase().includes("failed to fetch")) {
+          setError("Connection failed. Server se sampark nahi ho pa raha hai.");
+        } else {
+          setError(errorMsg);
+        }
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-      return;
-    }
 
-    router.push("/dashboard");
-    router.refresh();
+      // Synchronize client-side session and proceed
+      await supabase.auth.signInWithPassword({ email, password }).catch(() => { });
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: unknown) {
+      console.warn("Server login route failed, trying client-side fallback:", err);
+      // Fallback to client-side supabase auth
+      try {
+        const { error: clientError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (clientError) {
+          if (clientError.message.toLowerCase().includes("email not confirmed")) {
+            setIsUnconfirmed(true);
+            setError("Aapka email abhi tak confirm nahi hua hai.");
+          } else if (clientError.message.toLowerCase().includes("invalid login credentials")) {
+            setError("Invalid email or password. Kripya credentials check karein.");
+          } else if (clientError.message.toLowerCase().includes("failed to fetch")) {
+            setError("Network connection error. Check internet or disable browser adblockers (uBlock / Brave Shields).");
+          } else {
+            setError(clientError.message);
+          }
+          setLoading(false);
+          return;
+        }
+
+        router.push("/dashboard");
+        router.refresh();
+      } catch {
+        setError("Network connection error. Server se sampark nahi ho saka.");
+        setLoading(false);
+      }
+    }
+  }
+
+  // Handle Auto Confirm via server-side admin API
+  async function handleAutoConfirm() {
+    setLoading(true);
+    setError("");
+    setResendStatus("Auto-confirming email in Supabase...");
+
+    try {
+      const res = await fetch("/api/auth/confirm-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const resData = await res.json();
+
+      if (res.ok && resData.success) {
+        setResendStatus("Email confirmed! Signing you in now...");
+        // Re-attempt login immediately
+        const { error: signInErr } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (!signInErr) {
+          router.push("/dashboard");
+          router.refresh();
+          return;
+        } else {
+          setError("Email confirmed! Please click Sign In again.");
+        }
+      } else {
+        setResendStatus("");
+        setError(
+          resData.error ||
+          "Supabase Dashboard mein jakar Authentication > Users par 'Confirm email' click karein."
+        );
+      }
+    } catch {
+      setResendStatus("");
+      setError("Auto-confirmation failed. Kripya Supabase dashboard me confirm karein.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // Handle Resend Confirmation Email
@@ -107,7 +203,7 @@ export default function LoginPage() {
         error.message.toLowerCase().includes("not configured")
       ) {
         setError(
-          "Supabase SMS Gateway (Twilio) is not configured in your Supabase project. To use Mobile OTP, add an SMS provider under Supabase Dashboard > Authentication > Providers > Phone. In the meantime, use Email login!"
+          "Supabase SMS Gateway (Twilio) is not configured in your Supabase project. In the meantime, use Email login!"
         );
       } else {
         setError(error.message);
@@ -162,13 +258,10 @@ export default function LoginPage() {
       </div>
 
       <Card className="animate-fade-in-up relative z-10 w-full max-w-sm p-7 border-[#E5E6F9] bg-white shadow-xl transition-all duration-300 dark:border-white/[0.08] dark:bg-[#11141d]">
-        {/* Logo */}
+        {/* Aesthetic 3D Logo Header */}
         <div className="mb-5 flex flex-col items-center text-center">
-          <Link
-            href="/"
-            className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#175624] text-[#A4873E] shadow-xs transition-transform duration-200 hover:scale-105 dark:bg-[#162419] dark:text-[#dfb962] dark:border dark:border-[#dfb962]/30"
-          >
-            <TrendingUp className="h-5 w-5 stroke-[2.5]" />
+          <Link href="/" className="mb-2 inline-block transition-transform duration-200 hover:scale-105">
+            <Visual3DShield className="h-14 w-14" />
           </Link>
           <h1 className="text-xl font-bold tracking-tight text-[#175624] dark:text-white">
             Sign in to FinCoach
@@ -247,7 +340,55 @@ export default function LoginPage() {
               />
             </div>
 
-            {error && (
+            {/* Email Unconfirmed Resolution Banner */}
+            {isUnconfirmed && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50/90 p-3.5 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-200">
+                <div className="flex items-center gap-2 font-bold mb-1.5 text-amber-800 dark:text-amber-300">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span>Email Confirmation Required</span>
+                </div>
+                <p className="leading-relaxed mb-3 text-[11px]">
+                  Supabase ne email confirm karne ko kaha hai. Neeche diya gaya button dabayein:
+                </p>
+
+                <div className="space-y-2 mb-2.5">
+                  <button
+                    type="button"
+                    onClick={handleAutoConfirm}
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#175624] py-2 px-3 text-xs font-bold text-white shadow-xs hover:bg-[#12441d] dark:bg-[#dfb962] dark:text-[#080e0a]"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>⚡ Auto-Confirm &amp; Sign In</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleResendEmail}
+                    disabled={resending}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-white/80 py-1.5 px-3 text-[11px] font-semibold text-amber-900 hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-amber-200"
+                  >
+                    <RotateCw className={`h-3 w-3 ${resending ? "animate-spin" : ""}`} />
+                    <span>{resending ? "Sending..." : "Resend Email Link"}</span>
+                  </button>
+                </div>
+
+                <div className="rounded-lg bg-amber-100/80 p-2 text-[10px] leading-relaxed dark:bg-amber-900/50">
+                  <span className="font-bold block text-amber-950 dark:text-amber-200">
+                    Supabase se permanently remove karne ke liye:
+                  </span>
+                  Supabase Dashboard &gt; <strong>Authentication</strong> &gt; <strong>Providers</strong> &gt; <strong>Email</strong> &gt; Turn OFF <strong>"Confirm email"</strong>.
+                </div>
+
+                {resendStatus && (
+                  <p className="mt-2 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+                    {resendStatus}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {error && !isUnconfirmed && (
               <div className="rounded-lg border border-rose-200 bg-rose-50 p-2.5 text-xs font-medium text-rose-700 dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-300">
                 {error}
               </div>
@@ -381,7 +522,7 @@ export default function LoginPage() {
                   ) : (
                     <span className="flex items-center gap-1.5">
                       <KeyRound className="h-4 w-4" />
-                      <span>Verify & Sign In</span>
+                      <span>Verify &amp; Sign In</span>
                     </span>
                   )}
                 </Button>

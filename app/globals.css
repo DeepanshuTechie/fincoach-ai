@@ -226,3 +226,30 @@
 .animate-pulse-ring {
   animation: pulse-ring 3s ease-in-out infinite;
 }
+
+/* 3D Perspective Keyframes */
+@keyframes float-3d-slow {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateX(4deg) rotateY(-4deg);
+  }
+}
+
+@keyframes float-3d-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(8px) rotateX(-4deg) rotateY(4deg);
+  }
+}
+
+.animate-float-3d {
+  animation: float-3d-slow 5s ease-in-out infinite;
+}
+
+.animate-float-3d-delayed {
+  animation: float-3d-reverse 6s ease-in-out 1.2s infinite;
+}

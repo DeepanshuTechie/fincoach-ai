@@ -10,6 +10,7 @@ import {
   UploadCloud,
   LogOut,
   TrendingUp,
+  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -44,6 +45,13 @@ export function DashboardNav({ userEmail }: DashboardNavProps) {
       label: "Recurring",
       icon: RefreshCw,
       active: pathname === "/dashboard/subscriptions",
+    },
+    {
+      href: "/dashboard/coach",
+      label: "AI Coach",
+      icon: Sparkles,
+      active: pathname === "/dashboard/coach",
+      badge: "LIVE",
     },
     {
       href: "/dashboard/chat",
@@ -104,6 +112,11 @@ export function DashboardNav({ userEmail }: DashboardNavProps) {
                     }`}
                   />
                   <span>{item.label}</span>
+                  {item.badge && (
+                    <span className="rounded-full bg-[#175624] px-1.5 py-0.5 text-[9px] font-extrabold text-white dark:bg-[#dfb962] dark:text-[#080e0a]">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

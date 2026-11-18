@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Card3D } from "@/components/ui/card-3d";
+import { WealthCard3D } from "@/components/ui/card-3d-wealth";
 import {
   TrendingUp,
   ArrowRight,
@@ -16,6 +18,7 @@ import {
   Sparkles,
   AlertTriangle,
   ArrowUpRight,
+  ShieldCheck,
 } from "lucide-react";
 
 const ROTATING_PHRASES = [
@@ -226,156 +229,159 @@ export default function Home() {
         </div>
 
         {/* Interactive & Animated Product Preview Mockup */}
-        <div
-          className="animate-fade-in-up mt-14 w-full rounded-2xl border border-[#E5E6F9] bg-white p-4 sm:p-6 shadow-xl text-left transition-all duration-300 hover:shadow-2xl dark:border-white/[0.08] dark:bg-[#111a13]"
-          style={{ animationDelay: "600ms" }}
-        >
-          {/* Mockup Header bar with Interactive Tab Pills */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E6F9] pb-3 mb-5 dark:border-white/[0.06]">
-            <div className="flex items-center gap-2">
-              <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-              <div className="h-2.5 w-2.5 rounded-full bg-[#A4873E] dark:bg-[#dfb962]" />
-              <div className="h-2.5 w-2.5 rounded-full bg-[#175624] dark:bg-[#34d399]" />
-              <span className="ml-2 font-mono text-[11px] text-[#A4873E] dark:text-[#9ca3af]">
-                fincoach.ai/dashboard
-              </span>
-            </div>
+        <div className="relative mt-14 w-full">
+          {/* Subtle Ambient 3D Depth Glow (behind the card, never covering content) */}
+          <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-r from-[#175624]/15 via-[#A4873E]/10 to-[#175624]/15 blur-2xl transform scale-95 pointer-events-none" />
 
-            {/* Interactive Preview Tabs */}
-            <div className="flex items-center gap-1 rounded-lg border border-[#E5E6F9] bg-[#E5E6F9]/40 p-0.5 text-[11px] font-medium text-[#333333] dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-slate-400">
-              <button
-                type="button"
-                onClick={() => setMockupTab("overview")}
-                className={`rounded-md px-2.5 py-1 transition-all ${
-                  mockupTab === "overview"
-                    ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
-                    : "hover:text-[#175624] dark:hover:text-white"
-                }`}
-              >
-                Overview
-              </button>
-              <button
-                type="button"
-                onClick={() => setMockupTab("alerts")}
-                className={`rounded-md px-2.5 py-1 transition-all ${
-                  mockupTab === "alerts"
-                    ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
-                    : "hover:text-[#175624] dark:hover:text-white"
-                }`}
-              >
-                Variance Alerts
-              </button>
-              <button
-                type="button"
-                onClick={() => setMockupTab("advisor")}
-                className={`rounded-md px-2.5 py-1 transition-all ${
-                  mockupTab === "advisor"
-                    ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
-                    : "hover:text-[#175624] dark:hover:text-white"
-                }`}
-              >
-                AI Synthesis
-              </button>
-            </div>
-
-            {/* Radar Pulse Badge */}
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E5E6F9] border border-[#d0d3f2] px-2.5 py-0.5 text-[11px] font-bold text-[#175624] dark:bg-[#17241b] dark:border-[#34d399]/30 dark:text-[#34d399]">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#175624] opacity-75 dark:bg-[#34d399]" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#175624] dark:bg-[#34d399]" />
-              </span>
-              Active Sync
-            </span>
-          </div>
-
-          {/* Dynamic Content based on Mockup Tab */}
-          {mockupTab === "overview" && (
-            <div className="space-y-4 transition-all duration-300">
-              {/* Metric cards grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
-                  <span className="text-xs text-[#333333]/70 dark:text-slate-400">Monthly Spending</span>
-                  <p className="mt-1 text-2xl font-bold text-[#175624] dark:text-white font-tabular">
-                    ₹32,450
-                  </p>
-                  <span className="text-[11px] font-semibold text-[#175624] dark:text-[#34d399]">
-                    ↓ 14% vs last cycle
+          <Card3D maxTilt={4} glareEffect={true}>
+            <div
+              className="w-full rounded-2xl border border-[#E5E6F9] bg-white p-4 sm:p-6 shadow-xl text-left transition-all duration-300 dark:border-white/[0.08] dark:bg-[#111a13]"
+            >
+              {/* Mockup Header bar with Interactive Tab Pills */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E6F9] pb-3 mb-5 dark:border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                  <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-[#A4873E] dark:bg-[#dfb962]" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-[#175624] dark:bg-[#34d399]" />
+                  <span className="ml-2 font-mono text-[11px] text-[#A4873E] dark:text-[#9ca3af]">
+                    fincoach.ai/dashboard
                   </span>
                 </div>
-                <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
-                  <span className="text-xs text-[#333333]/70 dark:text-slate-400">Total Inflow</span>
-                  <p className="mt-1 text-2xl font-bold text-[#A4873E] dark:text-[#dfb962] font-tabular">
-                    ₹85,000
-                  </p>
-                  <span className="text-[11px] text-[#666666] dark:text-slate-400">Direct deposit</span>
+
+                {/* Interactive Preview Tabs */}
+                <div className="flex items-center gap-1 rounded-lg border border-[#E5E6F9] bg-[#E5E6F9]/40 p-0.5 text-[11px] font-medium text-[#333333] dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-slate-400">
+                  <button
+                    type="button"
+                    onClick={() => setMockupTab("overview")}
+                    className={`rounded-md px-2.5 py-1 transition-all ${mockupTab === "overview"
+                      ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
+                      : "hover:text-[#175624] dark:hover:text-white"
+                      }`}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMockupTab("alerts")}
+                    className={`rounded-md px-2.5 py-1 transition-all ${mockupTab === "alerts"
+                      ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
+                      : "hover:text-[#175624] dark:hover:text-white"
+                      }`}
+                  >
+                    Variance Alerts
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMockupTab("advisor")}
+                    className={`rounded-md px-2.5 py-1 transition-all ${mockupTab === "advisor"
+                      ? "bg-white text-[#175624] shadow-2xs font-bold dark:bg-[#17241b] dark:text-[#dfb962]"
+                      : "hover:text-[#175624] dark:hover:text-white"
+                      }`}
+                  >
+                    AI Synthesis
+                  </button>
                 </div>
-                <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
-                  <span className="text-xs text-[#333333]/70 dark:text-slate-400">Primary Expense</span>
-                  <p className="mt-1 text-2xl font-bold text-[#333333] dark:text-white font-tabular">
-                    Food & Dining
-                  </p>
-                  <span className="text-[11px] text-[#A4873E] dark:text-[#dfb962]">₹12,800 allocated</span>
-                </div>
+
+                {/* Radar Pulse Badge */}
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E5E6F9] border border-[#d0d3f2] px-2.5 py-0.5 text-[11px] font-bold text-[#175624] dark:bg-[#17241b] dark:border-[#34d399]/30 dark:text-[#34d399]">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#175624] opacity-75 dark:bg-[#34d399]" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#175624] dark:bg-[#34d399]" />
+                  </span>
+                  Active Sync
+                </span>
               </div>
 
-              {/* Sample Live Transaction Row */}
-              <div className="rounded-xl border border-[#E5E6F9] bg-white p-3 text-xs dark:border-white/[0.04] dark:bg-white/[0.02]">
-                <div className="flex items-center justify-between font-mono text-[11px] text-[#A4873E] dark:text-slate-400 mb-2">
-                  <span>RECENT SETTLED TRANSACTIONS</span>
-                  <span>MERCHANT MEMORY CONFIRMED</span>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-[#f8f9fd] border border-[#E5E6F9] transition-colors hover:border-[#A4873E]/50 dark:bg-white/[0.03] dark:border-white/[0.04]">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-6 w-6 rounded-md bg-[#175624] text-[#A4873E] flex items-center justify-center font-bold text-[10px] dark:bg-[#dfb962] dark:text-[#080e0a]">
-                        SW
-                      </div>
-                      <div>
-                        <span className="font-semibold text-[#333333] dark:text-slate-100">Swiggy Delivery</span>
-                        <span className="ml-2 text-[10px] text-[#A4873E] dark:text-slate-400">Auto-tagged Food & Dining</span>
+              {/* Dynamic Content based on Mockup Tab */}
+              {mockupTab === "overview" && (
+                <div className="space-y-4 transition-all duration-300">
+                  {/* Metric cards grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
+                      <span className="text-xs text-[#333333]/70 dark:text-slate-400">Monthly Spending</span>
+                      <p className="mt-1 text-2xl font-bold text-[#175624] dark:text-white font-tabular">
+                        ₹32,450
+                      </p>
+                      <span className="text-[11px] font-semibold text-[#175624] dark:text-[#34d399]">
+                        ↓ 14% vs last cycle
+                      </span>
+                    </div>
+                    <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
+                      <span className="text-xs text-[#333333]/70 dark:text-slate-400">Total Inflow</span>
+                      <p className="mt-1 text-2xl font-bold text-[#A4873E] dark:text-[#dfb962] font-tabular">
+                        ₹85,000
+                      </p>
+                      <span className="text-[11px] text-[#666666] dark:text-slate-400">Direct deposit</span>
+                    </div>
+                    <div className="group rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-white/[0.04] dark:bg-white/[0.02] dark:hover:border-white/[0.12]">
+                      <span className="text-xs text-[#333333]/70 dark:text-slate-400">Primary Expense</span>
+                      <p className="mt-1 text-2xl font-bold text-[#333333] dark:text-white font-tabular">
+                        Food & Dining
+                      </p>
+                      <span className="text-[11px] text-[#A4873E] dark:text-[#dfb962]">₹12,800 allocated</span>
+                    </div>
+                  </div>
+
+                  {/* Sample Live Transaction Row */}
+                  <div className="rounded-xl border border-[#E5E6F9] bg-white p-3 text-xs dark:border-white/[0.04] dark:bg-white/[0.02]">
+                    <div className="flex items-center justify-between font-mono text-[11px] text-[#A4873E] dark:text-slate-400 mb-2">
+                      <span>RECENT SETTLED TRANSACTIONS</span>
+                      <span>MERCHANT MEMORY CONFIRMED</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-[#f8f9fd] border border-[#E5E6F9] transition-colors hover:border-[#A4873E]/50 dark:bg-white/[0.03] dark:border-white/[0.04]">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-6 w-6 rounded-md bg-[#175624] text-[#A4873E] flex items-center justify-center font-bold text-[10px] dark:bg-[#dfb962] dark:text-[#080e0a]">
+                            SW
+                          </div>
+                          <div>
+                            <span className="font-semibold text-[#333333] dark:text-slate-100">Swiggy Delivery</span>
+                            <span className="ml-2 text-[10px] text-[#A4873E] dark:text-slate-400">Auto-tagged Food & Dining</span>
+                          </div>
+                        </div>
+                        <span className="font-tabular font-bold text-rose-600 dark:text-rose-400">-₹450.00</span>
                       </div>
                     </div>
-                    <span className="font-tabular font-bold text-rose-600 dark:text-rose-400">-₹450.00</span>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {mockupTab === "alerts" && (
-            <div className="space-y-3 transition-all duration-300">
-              <div className="rounded-xl border border-[#A4873E]/40 bg-[#f5eedf]/60 p-4 text-xs dark:border-[#dfb962]/30 dark:bg-[#dfb962]/[0.08]">
-                <div className="flex items-center gap-2 mb-1.5 font-bold text-[#175624] dark:text-[#dfb962]">
-                  <AlertTriangle className="h-4 w-4 text-[#A4873E] dark:text-[#dfb962]" />
-                  <span>Velocity Alert: Food & Dining at 85% of Monthly Limit</span>
+              {mockupTab === "alerts" && (
+                <div className="space-y-3 transition-all duration-300">
+                  <div className="rounded-xl border border-[#A4873E]/40 bg-[#f5eedf]/60 p-4 text-xs dark:border-[#dfb962]/30 dark:bg-[#dfb962]/[0.08]">
+                    <div className="flex items-center gap-2 mb-1.5 font-bold text-[#175624] dark:text-[#dfb962]">
+                      <AlertTriangle className="h-4 w-4 text-[#A4873E] dark:text-[#dfb962]" />
+                      <span>Velocity Alert: Food & Dining at 85% of Monthly Limit</span>
+                    </div>
+                    <p className="text-[#333333] leading-relaxed dark:text-slate-300">
+                      You have spent ₹12,800 of your ₹15,000 limit with 12 days remaining in this billing cycle. Current daily run-rate is projected to exceed allowance by ₹2,400.
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-[#175624]/20 bg-[#e8f5ea] p-4 text-xs dark:border-[#34d399]/30 dark:bg-[#34d399]/[0.08]">
+                    <div className="flex items-center gap-2 mb-1.5 font-bold text-[#175624] dark:text-[#34d399]">
+                      <CheckCircle2 className="h-4 w-4 text-[#175624] dark:text-[#34d399]" />
+                      <span>Subscription Audit: 0 Unrecognized Recurring Charges</span>
+                    </div>
+                    <p className="text-[#333333] leading-relaxed dark:text-slate-300">
+                      Verified 3 recurring services (AWS, Netflix, Spotify). Monthly subscription run-rate remains constant at ₹1,849.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-[#333333] leading-relaxed dark:text-slate-300">
-                  You have spent ₹12,800 of your ₹15,000 limit with 12 days remaining in this billing cycle. Current daily run-rate is projected to exceed allowance by ₹2,400.
-                </p>
-              </div>
-              <div className="rounded-xl border border-[#175624]/20 bg-[#e8f5ea] p-4 text-xs dark:border-[#34d399]/30 dark:bg-[#34d399]/[0.08]">
-                <div className="flex items-center gap-2 mb-1.5 font-bold text-[#175624] dark:text-[#34d399]">
-                  <CheckCircle2 className="h-4 w-4 text-[#175624] dark:text-[#34d399]" />
-                  <span>Subscription Audit: 0 Unrecognized Recurring Charges</span>
-                </div>
-                <p className="text-[#333333] leading-relaxed dark:text-slate-300">
-                  Verified 3 recurring services (AWS, Netflix, Spotify). Monthly subscription run-rate remains constant at ₹1,849.
-                </p>
-              </div>
-            </div>
-          )}
+              )}
 
-          {mockupTab === "advisor" && (
-            <div className="rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 text-xs dark:border-white/[0.06] dark:bg-white/[0.02] transition-all duration-300">
-              <div className="flex items-center gap-2 mb-2 font-bold text-[#175624] dark:text-[#dfb962]">
-                <Sparkles className="h-3.5 w-3.5 text-[#A4873E] dark:text-[#dfb962]" />
-                <span>Executive Financial Synthesis</span>
-              </div>
-              <p className="text-[#333333] leading-relaxed dark:text-slate-300">
-                Net cash flow remained positive with a surplus of ₹52,550. Discretionary spending was reduced by 14% compared to the prior period. Rebalancing ₹15,000 into short-term liquid reserves will fulfill your emergency fund target 18 days ahead of schedule.
-              </p>
+              {mockupTab === "advisor" && (
+                <div className="rounded-xl border border-[#E5E6F9] bg-[#E5E6F9]/30 p-4 text-xs dark:border-white/[0.06] dark:bg-white/[0.02] transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2 font-bold text-[#175624] dark:text-[#dfb962]">
+                    <Sparkles className="h-3.5 w-3.5 text-[#A4873E] dark:text-[#dfb962]" />
+                    <span>Executive Financial Synthesis</span>
+                  </div>
+                  <p className="text-[#333333] leading-relaxed dark:text-slate-300">
+                    Net cash flow remained positive with a surplus of ₹52,550. Discretionary spending was reduced by 14% compared to the prior period. Rebalancing ₹15,000 into short-term liquid reserves will fulfill your emergency fund target 18 days ahead of schedule.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+          </Card3D>
         </div>
       </section>
 
@@ -435,6 +441,55 @@ export default function Home() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* 3D INTERACTIVE WEALTH SHOWCASE */}
+      <section className="w-full border-t border-[#E5E6F9] bg-[#f8f9fd]/60 py-20 px-4 transition-colors dark:border-white/[0.06] dark:bg-[#0c120e]">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-6 text-left">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#A4873E] dark:text-[#dfb962]">
+                FinCoach Obsidian Tier
+              </span>
+              <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-[#175624] dark:text-white">
+                Intelligent wealth engineering in your pocket
+              </h2>
+              <p className="mt-3 text-xs sm:text-sm text-[#333333]/85 leading-relaxed dark:text-slate-300">
+                FinCoach pairs autonomous financial coaching with military-grade privacy. Your statements are processed in-memory with PostgreSQL Row-Level Security, generating real-time FinScores (0–1000) and predictive 6-month What-If runaways.
+              </p>
+
+              <div className="mt-6 grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-xl border border-[#E5E6F9] bg-white p-3.5 shadow-xs dark:border-white/10 dark:bg-[#111a13]">
+                  <span className="text-[10px] uppercase font-bold text-[#A4873E] dark:text-[#dfb962] block">
+                    Diagnostic Score
+                  </span>
+                  <span className="text-base font-black text-[#175624] dark:text-[#dfb962] font-tabular">
+                    845 / 1000
+                  </span>
+                  <span className="text-[10px] text-slate-500 block">Grade A+ Health</span>
+                </div>
+                <div className="rounded-xl border border-[#E5E6F9] bg-white p-3.5 shadow-xs dark:border-white/10 dark:bg-[#111a13]">
+                  <span className="text-[10px] uppercase font-bold text-[#A4873E] dark:text-[#dfb962] block">
+                    Data Encryption
+                  </span>
+                  <span className="text-base font-black text-[#175624] dark:text-white">
+                    256-bit AES
+                  </span>
+                  <span className="text-[10px] text-slate-500 block">RLS Tenant Isolated</span>
+                </div>
+              </div>
+
+              <p className="mt-4 text-[11px] text-slate-400 flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-[#A4873E]" />
+                <span>Move cursor over the metal card to tilt in 3D · Click to flip</span>
+              </p>
+            </div>
+
+            <div className="lg:col-span-6 flex justify-center items-center py-4">
+              <WealthCard3D cardHolder="DIPANSHU SHARMA" finScore={845} />
+            </div>
           </div>
         </div>
       </section>
