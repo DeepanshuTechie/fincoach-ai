@@ -1,9 +1,15 @@
 "use client";
 
-import React, { ReactNode } from "react";
-import { motion, HTMLMotionProps } from "framer-motion";
+import React, {
+  createContext,
+  useContext,
+  useRef,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
-interface ScrollRevealProps extends HTMLMotionProps<"div"> {
+interface ScrollRevealProps {
   children: ReactNode;
   delay?: number;
   duration?: number;
@@ -15,98 +21,153 @@ interface ScrollRevealProps extends HTMLMotionProps<"div"> {
   once?: boolean;
 }
 
+/**
+ * ScrollReveal:
+ * High-performance, hardware-accelerated scroll manifestation ("prakat ho rha hai").
+ * Uses native IntersectionObserver with generous lead margin + 600ms safety fallback
+ * so that content NEVER gets stuck or invisible.
+ */
 export function ScrollReveal({
   children,
   delay = 0,
-  duration = 0.75,
+  duration = 0.65,
   direction = "up",
-  distance = 36,
+  distance = 28,
   blur = true,
   scale = false,
   className = "",
   once = true,
-  ...props
 }: ScrollRevealProps) {
-  const getInitialPosition = () => {
-    switch (direction) {
-      case "up":
-        return { y: distance };
-      case "down":
-        return { y: -distance };
-      case "left":
-        return { x: distance };
-      case "right":
-        return { x: -distance };
-      case "none":
-      default:
-        return {};
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
     }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (once) observer.unobserve(entry.target);
+        } else if (!once) {
+          setIsVisible(false);
+        }
+      },
+      {
+        threshold: 0.02,
+        rootMargin: "80px 0px 40px 0px", // Generous lead-in so it reveals as user approaches
+      }
+    );
+
+    observer.observe(el);
+
+    // Safety fallback: guarantees content appears even if browser skips observer
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 600);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, [once]);
+
+  const getTransform = () => {
+    if (isVisible) return "translate3d(0, 0, 0) scale(1)";
+    const x = direction === "left" ? distance : direction === "right" ? -distance : 0;
+    const y = direction === "up" ? distance : direction === "down" ? -distance : 0;
+    const s = scale ? 0.96 : 1;
+    return `translate3d(${x}px, ${y}px, 0) scale(${s})`;
   };
 
   return (
-    <motion.div
-      initial={{
-        opacity: 0,
-        ...getInitialPosition(),
-        ...(blur ? { filter: "blur(10px)" } : {}),
-        ...(scale ? { scale: 0.95 } : {}),
-      }}
-      whileInView={{
-        opacity: 1,
-        x: 0,
-        y: 0,
-        filter: "blur(0px)",
-        scale: 1,
-      }}
-      viewport={{ once, margin: "-60px" }}
-      transition={{
-        duration,
-        delay,
-        ease: [0.16, 1, 0.3, 1], // Smooth Apple/Stripe-like deceleration
-      }}
+    <div
+      ref={ref}
       className={className}
-      {...props}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: getTransform(),
+        filter: blur ? (isVisible ? "blur(0px)" : "blur(8px)") : undefined,
+        transitionProperty: "opacity, transform, filter",
+        transitionDuration: `${duration}s`,
+        transitionDelay: `${delay}s`,
+        transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+        willChange: "opacity, transform",
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-/**
- * Container component to automatically stagger-reveal child items
- */
-interface StaggerRevealProps extends HTMLMotionProps<"div"> {
+// Stagger Context for cascading card lists
+const StaggerContext = createContext<{ isVisible: boolean; staggerDelay: number }>({
+  isVisible: false,
+  staggerDelay: 0.1,
+});
+
+export function StaggerContainer({
+  children,
+  staggerDelay = 0.1,
+  className = "",
+  once = true,
+}: {
   children: ReactNode;
   staggerDelay?: number;
   className?: string;
   once?: boolean;
-}
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-export function StaggerContainer({
-  children,
-  staggerDelay = 0.12,
-  className = "",
-  once = true,
-  ...props
-}: StaggerRevealProps) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (once) observer.unobserve(entry.target);
+        } else if (!once) {
+          setIsVisible(false);
+        }
+      },
+      {
+        threshold: 0.02,
+        rootMargin: "80px 0px 40px 0px",
+      }
+    );
+
+    observer.observe(el);
+
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 600);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, [once]);
+
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once, margin: "-60px" }}
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: staggerDelay,
-          },
-        },
-      }}
-      className={className}
-      {...props}
-    >
-      {children}
-    </motion.div>
+    <StaggerContext.Provider value={{ isVisible, staggerDelay }}>
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    </StaggerContext.Provider>
   );
 }
 
@@ -114,11 +175,11 @@ export function StaggerItem({
   children,
   className = "",
   direction = "up",
-  distance = 30,
-  duration = 0.7,
+  distance = 24,
+  duration = 0.6,
   blur = true,
   scale = false,
-  ...props
+  index = 0,
 }: {
   children: ReactNode;
   className?: string;
@@ -127,48 +188,35 @@ export function StaggerItem({
   duration?: number;
   blur?: boolean;
   scale?: boolean;
-} & HTMLMotionProps<"div">) {
-  const getInitialPosition = () => {
-    switch (direction) {
-      case "up":
-        return { y: distance };
-      case "down":
-        return { y: -distance };
-      case "left":
-        return { x: distance };
-      case "right":
-        return { x: -distance };
-      case "none":
-      default:
-        return {};
-    }
+  index?: number;
+}) {
+  const context = useContext(StaggerContext);
+  const isVisible = context ? context.isVisible : true;
+  const delay = (index || 0) * (context?.staggerDelay || 0.1);
+
+  const getTransform = () => {
+    if (isVisible) return "translate3d(0, 0, 0) scale(1)";
+    const x = direction === "left" ? distance : direction === "right" ? -distance : 0;
+    const y = direction === "up" ? distance : direction === "down" ? -distance : 0;
+    const s = scale ? 0.96 : 1;
+    return `translate3d(${x}px, ${y}px, 0) scale(${s})`;
   };
 
   return (
-    <motion.div
-      variants={{
-        hidden: {
-          opacity: 0,
-          ...getInitialPosition(),
-          ...(blur ? { filter: "blur(10px)" } : {}),
-          ...(scale ? { scale: 0.95 } : {}),
-        },
-        visible: {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          filter: "blur(0px)",
-          scale: 1,
-          transition: {
-            duration,
-            ease: [0.16, 1, 0.3, 1],
-          },
-        },
-      }}
+    <div
       className={className}
-      {...props}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: getTransform(),
+        filter: blur ? (isVisible ? "blur(0px)" : "blur(6px)") : undefined,
+        transitionProperty: "opacity, transform, filter",
+        transitionDuration: `${duration}s`,
+        transitionDelay: `${delay}s`,
+        transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+        willChange: "opacity, transform",
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

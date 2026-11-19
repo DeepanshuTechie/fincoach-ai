@@ -12,12 +12,12 @@ import Link from "next/link";
 import {
   Loader2,
   ArrowRight,
+  ArrowLeft,
   Mail,
   KeyRound,
   AlertCircle,
 } from "lucide-react";
 import { Visual3DShield } from "@/components/ui/fintech-3d-visuals";
-import { MoneyBorderFrame } from "@/components/ui/money-border-frame";
 
 function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -98,7 +98,7 @@ export default function SignupPage() {
       });
 
       if (signInErr) {
-        router.push("/login");
+        router.replace("/login");
         return;
       }
 
@@ -112,19 +112,50 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="auth-page-main relative flex min-h-screen items-center justify-center bg-[#f8f9fd] px-3 sm:px-6 py-10 sm:py-12 text-[#333333] transition-colors duration-200 dark:bg-black dark:text-[#f5f7fa] overflow-hidden">
-      {/* 100% RESPONSIVE FINANCIAL GREEN MONEY BORDER FRAME (Light mode only, completely hidden in night mode) */}
-      <MoneyBorderFrame />
+    <main className="auth-page-main relative flex min-h-screen items-center justify-center bg-[#f8f9fd] px-4 py-12 text-[#333333] transition-colors duration-200 dark:bg-black dark:text-[#f5f7fa] overflow-hidden">
+      {/* SEAMLESS FINANCE DOODLE PATTERN BACKGROUND */}
+      {/* Light Mode: Green financial doodle line-art figures */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-30 dark:hidden transition-opacity duration-300"
+        style={{
+          backgroundImage: "url('/finance-doodle-green.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "clamp(280px, 35vw, 440px) auto",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Dark Mode: Pure WHITE financial doodle line-art figures on solid black */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 hidden dark:block dark:opacity-25 transition-opacity duration-300"
+        style={{
+          backgroundImage: "url('/finance-doodle-white.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "clamp(280px, 35vw, 440px) auto",
+        }}
+        aria-hidden="true"
+      />
 
       {/* Subtle ambient luxury emerald glow centered behind card (Light mode only) */}
       <div className="auth-emerald-glow pointer-events-none absolute h-96 w-96 rounded-full bg-[#175624]/10 blur-3xl z-0 dark:hidden" />
+
+      {/* Back to Home navigation */}
+      <div className="absolute top-5 left-5 z-20">
+        <Link
+          href="/"
+          className="group flex items-center gap-1.5 rounded-full border border-[#E5E6F9] bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#333333] backdrop-blur-xs transition-all duration-200 hover:border-[#175624]/40 hover:text-[#175624] hover:shadow-xs dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-300 dark:hover:text-[#dfb962]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          <span>Home</span>
+        </Link>
+      </div>
 
       {/* Theme Toggle in top corner */}
       <div className="absolute top-5 right-5 z-20">
         <ThemeToggle />
       </div>
 
-      <Card className="auth-page-card animate-fade-in-up relative z-10 w-full max-w-[335px] sm:max-w-sm p-5 sm:p-7 border border-[#8DBD66]/40 bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-[#8DBD66]/80 hover:shadow-[0_12px_40px_rgba(141,189,102,0.18)] dark:border-white/10 dark:bg-black dark:shadow-none dark:hover:border-white/20">
+      <Card className="auth-page-card animate-fade-in-up relative z-10 w-full max-w-sm p-6 sm:p-7 border border-[#E5E6F9] bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-[#175624]/40 hover:shadow-[0_12px_40px_rgba(23,86,36,0.12)] dark:border-white/10 dark:bg-[#0d0d0d]/95 dark:shadow-[0_16px_50px_rgba(0,0,0,0.8)] dark:hover:border-white/20">
         {/* Logo Header */}
         <div className="mb-6 flex flex-col items-center text-center">
           <Link href="/" className="mb-2 inline-block transition-transform duration-200 hover:scale-105">
@@ -222,6 +253,7 @@ export default function SignupPage() {
           Already registered?{" "}
           <Link
             href="/login"
+            replace
             className="font-bold text-[#175624] hover:underline dark:text-[#dfb962]"
           >
             Sign in

@@ -176,7 +176,7 @@ export default function Home() {
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-4 pt-16 pb-20 text-center sm:pt-24 sm:pb-28">
+      <section className="relative mx-auto flex w-full max-w-5xl flex-col items-center px-4 pt-16 pb-20 text-center sm:pt-24 sm:pb-28">
         {/* Subtle Release Badge */}
         <div
           className="animate-fade-in-up inline-flex items-center gap-2 rounded-full border border-[#E5E6F9] bg-white px-3.5 py-1 text-xs font-medium text-[#175624] shadow-2xs transition-all duration-200 hover:border-[#A4873E]/40 hover:shadow-xs dark:border-[#dfb962]/20 dark:bg-[#111a13] dark:text-[#dfb962]"
@@ -258,10 +258,9 @@ export default function Home() {
         </div>
 
         {/* Interactive & Animated Product Preview Mockup */}
-        <ScrollReveal distance={36} scale blur delay={0.05} className="w-full">
-          <div className="relative mt-14 w-full">
-            {/* Subtle Ambient 3D Depth Glow (behind the card, never covering content) */}
-            <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-r from-[#175624]/15 via-[#A4873E]/10 to-[#175624]/15 blur-2xl transform scale-95 pointer-events-none" />
+        <div className="animate-fade-in-up relative mt-14 w-full" style={{ animationDelay: "500ms" }}>
+          {/* Subtle Ambient 3D Depth Glow (behind the card, never covering content) */}
+          <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-r from-[#175624]/15 via-[#A4873E]/10 to-[#175624]/15 blur-2xl transform scale-95 pointer-events-none" />
 
             <Card3D maxTilt={4} glareEffect={true}>
               <div
@@ -412,8 +411,7 @@ export default function Home() {
                 )}
               </div>
             </Card3D>
-          </div>
-        </ScrollReveal>
+        </div>
       </section>
 
       {/* WORKFLOW PIPELINE SECTION WITH FINANCIAL DOODLE PATTERN */}
@@ -482,11 +480,12 @@ export default function Home() {
                   icon: MessageSquare,
                   badge: "Autonomous CA",
                 },
-              ].map((item) => {
+              ].map((item, idx) => {
                 const Icon = item.icon;
                 return (
                   <StaggerItem
                     key={item.step}
+                    index={idx}
                     direction="up"
                     distance={36}
                     blur
@@ -618,11 +617,12 @@ export default function Home() {
                 desc: "Automatically isolates recurring charges by tracking merchant frequency and calculating average run rates.",
                 icon: Layers,
               },
-            ].map((f) => {
+            ].map((f, idx) => {
               const Icon = f.icon;
               return (
                 <StaggerItem
                   key={f.title}
+                  index={idx}
                   direction="up"
                   distance={30}
                   blur
