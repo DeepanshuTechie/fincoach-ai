@@ -12,12 +12,28 @@ import Link from "next/link";
 import {
   Loader2,
   ArrowRight,
-  ArrowLeft,
   Mail,
   KeyRound,
   AlertCircle,
 } from "lucide-react";
 import { Visual3DShield } from "@/components/ui/fintech-3d-visuals";
+
+function BackArrowIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </svg>
+  );
+}
 
 function GoogleIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -145,7 +161,7 @@ export default function SignupPage() {
           href="/"
           className="group flex items-center gap-1.5 rounded-full border border-[#E5E6F9] bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#333333] backdrop-blur-xs transition-all duration-200 hover:border-[#175624]/40 hover:text-[#175624] hover:shadow-xs dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-300 dark:hover:text-[#dfb962]"
         >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          <BackArrowIcon className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Home</span>
         </Link>
       </div>
