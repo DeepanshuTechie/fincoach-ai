@@ -532,7 +532,7 @@ export function CoachClient({ transactions, initialPlan }: CoachClientProps) {
                     <Compass className="h-4 w-4" />
                   </div>
                   <h2 className="text-lg font-bold text-[#175624] dark:text-white">
-                    "Can I Afford This?" — What-If Decision Engine
+                    &ldquo;Can I Afford This?&rdquo; — What-If Decision Engine
                   </h2>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -662,7 +662,7 @@ export function CoachClient({ transactions, initialPlan }: CoachClientProps) {
                   6-Month Projected Cashflow Runway
                 </h4>
                 <p className="text-[11px] text-slate-500">
-                  Green: Baseline Cadence · Gold: Balance With "{itemName}"
+                  Green: Baseline Cadence · Gold: Balance With &quot;{itemName}&quot;
                 </p>
               </div>
               <div className="flex items-center gap-4 text-xs font-medium">

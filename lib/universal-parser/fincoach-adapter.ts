@@ -85,7 +85,7 @@ export async function commitUniversalTransactionsToFinCoach(
     });
 
     // 4. Run AI categorization for new/unknown merchants using existing FinCoach AI engine
-    let newMemoryEntries: { user_id: string; description: string; category_id: string }[] = [];
+    const newMemoryEntries: { user_id: string; description: string; category_id: string }[] = [];
     if (unknownTransactions.length > 0) {
       const aiResults = await categorizeTransactions(
         unknownTransactions.map((u) => ({ description: u.description, amount: u.amount }))

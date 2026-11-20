@@ -3,8 +3,29 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "FinCoach — Personal Wealth & Spending Intelligence",
-  description: "Bank-grade transaction categorization, automated budget envelopes, and AI financial analysis.",
+  title: "FinCoach AI — Autonomous Personal Wealth & Spending Intelligence",
+  description:
+    "Bank-grade bank statement parsing, automated budget envelopes, merchant memory, and AI financial analysis.",
+  keywords: [
+    "personal finance",
+    "AI financial coach",
+    "bank statement parser",
+    "wealth management",
+    "budget envelopes",
+  ],
+  openGraph: {
+    title: "FinCoach AI — Autonomous Personal Wealth OS",
+    description:
+      "Bank-grade statement categorization, recurring charge detection, and conversational financial intelligence.",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FinCoach AI — Personal Wealth OS",
+    description:
+      "Bank-grade statement categorization, recurring charge detection, and conversational financial intelligence.",
+  },
 };
 
 export default function RootLayout({
